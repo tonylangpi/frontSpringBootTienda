@@ -26,7 +26,6 @@ export const createProduct = async (usuario) => {
 
 export const editProduct = async (product) => {
   try {
-    console.log(product.id)
     const res = await axios.put(
       `http://localhost:9090/products/edit/${product.id}`,
       { 
@@ -36,6 +35,21 @@ export const editProduct = async (product) => {
         cantidad_disponible:product.cantidad_disponible,
         imagen:product.imagen
       }
+    );
+    return res.data;
+  } catch (error) {
+    Swal.fire({
+      title: "Error",
+      text: `Hubo un problema al enviar los datos. ${error}`,
+      icon: "error",
+    });
+  }
+};
+
+export const deleteProduct = async (id) => {
+  try {
+    const res = await axios.put(
+      `http://localhost:9090/products/updateStatus/${id}`
     );
     return res.data;
   } catch (error) {

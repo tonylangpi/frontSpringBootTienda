@@ -4,6 +4,8 @@ import { ClientContext } from "../../providers/context-auth";
 import Modal from "../AdminPages/ModalCreateProduct";
 import IconEdit from '@mui/icons-material/Edit';
 import ToggleOnIcon from '@mui/icons-material/ToggleOn';
+import {deleteProduct} from '../../services/products-services';
+import Swal from "sweetalert2";
 
 const Iventory = () => {
      
@@ -36,6 +38,49 @@ const Iventory = () => {
         setproductDetail(card);
         setTipoModal("edit");
         handleOpenModalProduct();
+      }
+
+      const deleteProductClick = async(id) => {
+                // Simulación de envío a la API
+        
+                // Mostrar la alerta de carga
+                Swal.fire({
+                  title: "Cargando...",
+                  text: "Por favor espera mientras se envían los datos.",
+                  icon: "info",
+                  allowOutsideClick: false, // No se puede cerrar fuera de la alerta
+                  didOpen: () => {
+                    Swal.showLoading(); // Muestra el cargador
+                  },
+                });
+            
+                // Simulación de envío a la API
+                try {
+                    const res = await deleteProduct(id)
+                   console.log(res);
+                  if (res) {
+                    //Cerrar la alerta de carga y mostrar el mensaje de éxito
+                    Swal.fire({
+                      title: "¡Éxito!",
+                      text: "El producto se ha actualizado correctamente.",
+                      icon: "success",
+                    });
+                    oferts.mutate();
+                  } else {
+                    Swal.fire({
+                      title: "Problema",
+                      text: "hubo un error al enviar los datos",
+                      icon: "error",
+                    });
+                  }
+                } catch (error) {
+                  // Si hay un error, mostrar alerta de error
+                  Swal.fire({
+                    title: "Error",
+                    text: `Hubo un problema al enviar los datos.${error}`,
+                    icon: "error",
+                  });
+                }
       }
 
   if (user?.isAdmin !== "1") {
@@ -112,7 +157,7 @@ const Iventory = () => {
                   Editar
                 </button>
                 <button
-                  onClick={() => alert(card.id)}
+                  onClick={() => {deleteProductClick(card.id)}}
                   className="bg-red-500 hover:bg-red-300 cursor-pointer text-white px-4 py-2 rounded-lg"
                 >
                   <ToggleOnIcon stroke={2} />
