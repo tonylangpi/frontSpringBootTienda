@@ -23,3 +23,26 @@ export const createProduct = async (usuario) => {
     });
   }
 };
+
+export const editProduct = async (product) => {
+  try {
+    console.log(product.id)
+    const res = await axios.put(
+      `http://localhost:9090/products/edit/${product.id}`,
+      { 
+        nombre:product.nombre,
+        descripcion:product.descripcion,
+        precio_unitario:product.precio_unitario,
+        cantidad_disponible:product.cantidad_disponible,
+        imagen:product.imagen
+      }
+    );
+    return res.data;
+  } catch (error) {
+    Swal.fire({
+      title: "Error",
+      text: `Hubo un problema al enviar los datos. ${error}`,
+      icon: "error",
+    });
+  }
+};

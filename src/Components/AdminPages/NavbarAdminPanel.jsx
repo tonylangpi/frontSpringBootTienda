@@ -21,6 +21,7 @@ function NavbarAdminPanel() {
     const navigate = useNavigate();
    const {
     setLoggedIn,
+    login,
      } = use(ClientContext);
     // if (status === "loading") {
     //   return (
@@ -59,6 +60,25 @@ function NavbarAdminPanel() {
   // const redirectRoute = (route) => {
   //   navigate(route);
   // };
+
+  // useEffect(() => {
+  //     // const loggedIn = localStorage.getItem('loged') 
+  //     // const isAdmin = localStorage.getItem('isAdmin')
+  //     const loged = localStorage.getItem('loged'); 
+  //     const isAdmin = localStorage.getItem('isAdmin');
+  //     const storedLoged = JSON.parse(loged);
+  //     const storedAdmin = JSON.parse(isAdmin);
+  //     console.log(storedLoged);
+  //     console.log(storedAdmin);
+  //     if (storedLoged === true && storedAdmin === 1) {
+  //       contexto.loggedIn(true);
+  //       //contexto.login(')
+  //     }
+  //     else{
+  //       setLoogged(false);
+  //       setAdmin(null);
+  //     }
+  //   }, [contexto]);
     
   const handleClick = () => {
     Swal.fire({
@@ -69,6 +89,7 @@ function NavbarAdminPanel() {
     });
     navigate("/");
     setLoggedIn(false);
+    login(null);
   };
 
   return (
@@ -90,7 +111,7 @@ function NavbarAdminPanel() {
             textDecoration: 'none',
           }}
         >
-          CONVEXIN ADMIN
+          CONVEX-IM ADMIN
         </Typography>
 
         <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -144,7 +165,7 @@ function NavbarAdminPanel() {
             textDecoration: 'none',
           }}
         >
-          CONVEXIN ADMIN
+          CONVEX-IM ADMIN
         </Typography>
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
         {/* {menuItems.map((item, index) => (

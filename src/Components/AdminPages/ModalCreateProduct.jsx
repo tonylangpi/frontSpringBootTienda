@@ -1,9 +1,9 @@
 // components/Modal.js
-import {use} from "react";
+import {use, useEffect} from "react";
 import { ClientContext } from "../../providers/context-auth";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
-import { createProduct } from "../../services/products-services.js"
+import { createProduct, editProduct } from "../../services/products-services.js"
 import InputNombreProd from '../inputs/input.jsx'
 import InputDescripcionProd from '../inputs/input.jsx'
 import InputPrecioProd from '../inputs/input.jsx'
@@ -16,6 +16,7 @@ const ModalCreateProduct = ({ isOpen, onClose, mutate }) => {
   const navigate = useNavigate();
   const {
     tipoModal,
+    productDetail
   } = use(ClientContext);
 
   const {
@@ -33,6 +34,27 @@ const ModalCreateProduct = ({ isOpen, onClose, mutate }) => {
       imagen:""
     },
   });
+
+  useEffect(() => {
+    if (tipoModal === "edit" && productDetail) {
+      reset({
+        id: productDetail.id || "",
+        nombre: productDetail.nombre || "",
+        descripcion: productDetail.descripcion || "",
+        precio_unitario: productDetail.precio_unitario || "",
+        cantidad_disponible: productDetail.cantidad_disponible || "",
+        imagen: productDetail.imagen || ""
+      });
+    } else if (tipoModal === "create") {
+      reset({
+        nombre: "",
+        descripcion: "",
+        precio_unitario: "",
+        cantidad_disponible: "",
+        imagen: ""
+      });
+    }
+  }, [tipoModal, productDetail, reset]);
 
   if (!isOpen) return null;
     
@@ -85,6 +107,55 @@ const ModalCreateProduct = ({ isOpen, onClose, mutate }) => {
         }
       });
 
+
+      const editar = handleSubmit(async (product) => {
+        //console.log(product);
+        // Simulación de envío a la API
+
+        // Mostrar la alerta de carga
+        Swal.fire({
+          title: "Cargando...",
+          text: "Por favor espera mientras se envían los datos.",
+          icon: "info",
+          allowOutsideClick: false, // No se puede cerrar fuera de la alerta
+          didOpen: () => {
+            Swal.showLoading(); // Muestra el cargador
+          },
+        });
+    
+        // Simulación de envío a la API
+        try {
+            const res = await editProduct(product)
+           console.log(res);
+          if (res) {
+            navigate("/inventory");
+            //Cerrar la alerta de carga y mostrar el mensaje de éxito
+            Swal.fire({
+              title: "¡Éxito!",
+              text: "El producto se ha actualizado correctamente.",
+              icon: "success",
+            });
+            // Resetear el formulario
+            reset();
+            mutate();
+            // Cerrar el modal
+            onClose();
+          } else {
+            Swal.fire({
+              title: "Problema",
+              text: "hubo un error al enviar los datos",
+              icon: "error",
+            });
+          }
+        } catch (error) {
+          // Si hay un error, mostrar alerta de error
+          Swal.fire({
+            title: "Error",
+            text: `Hubo un problema al enviar los datos.${error}`,
+            icon: "error",
+          });
+        }
+      });
     // Modal
     // Compare this snippet from src/Components/AdminPages/ModalCreateProduct.jsx:
     return (
@@ -189,25 +260,90 @@ const ModalCreateProduct = ({ isOpen, onClose, mutate }) => {
           ) : (
             <>
               <h2 className="text-2xl font-semibold mb-4">Editar Producto</h2>
-              <form>
-                <div className="mb-4">
-                  <label className="block text-gray-700">
-                    Nombre del Producto
-                  </label>
-                  <input
+              <form onSubmit={editar}  className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
+              <InputNombreProd
+                  type="text"
+                  name="nombre"
+                  label={"Nombre Producto"}
+                  register={{
+                    ...register("nombre", {
+                      required: {
+                        value: true,
+                        message: "Campo requerido",
+                      }
+                    }),
+                  }}
+                  message={errors?.nombre?.message}
+                />
+                <InputDescripcionProd
                     type="text"
-                    className="w-full px-3 py-2 border rounded-lg"
-                    defaultValue="Nombre del producto"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-gray-700">Precio</label>
-                  <input
+                    name="descripcion"
+                    label={"descripcion producto"}
+                    register={{
+                        ...register("descripcion", {
+                        required: {
+                            value: true,
+                            message: "Campo requerido",
+                        }
+                        }),
+                    }}
+                    message={errors?.descripcion?.message}
+                />
+                  <InputPrecioProd
                     type="number"
-                    className="w-full px-3 py-2 border rounded-lg"
-                    defaultValue="100"
-                  />
-                </div>
+                    name="precio_unitario"
+                    label={"precio producto"}
+                    register={{
+                        ...register("precio_unitario", {
+                        required: {
+                            value: true,
+                            message: "Campo requerido",
+                        },
+                        pattern: {
+                            value: /^[0-9]+(\.[0-9]+)?$/,
+                            message: "Solo se permiten números positivos",
+                        }
+                        }),
+                    }}
+                    message={errors?.precio_unitario?.message}
+                />
+                <InputCantidadProd
+                    type="number"
+                    step="1"
+                    name="cantidad_disponible"
+                    label={"cantidad producto"}
+                    register={{
+                        ...register("cantidad_disponible", {
+                        required: {
+                            value: true,
+                            message: "Campo requerido",
+                        },
+                        pattern: {
+                            value: /^[0-9]+(\.[0-9]+)?$/,
+                            message: "Solo se permiten números positivos",
+                        }
+                        }),
+                    }}
+                    message={errors?.cantidad_disponible?.message}
+                />
+                <InputImagenProd
+                    type="text"
+                    name="imagen"
+                    label={"url imagen producto"}
+                    register={{
+                        ...register("imagen", {
+                        required: {
+                            value: true,
+                            message: "Campo requerido",
+                        },
+                        pattern: {
+                            value: /^https?:\/\/.*\.(?:png|jpg|jpeg|gif)$/i,
+                            message: "URL de imagen inválida",
+                        },
+                        }),
+                    }}
+                    message={errors?.imagen?.message}
+                />
                 <button
                   type="submit"
                   className="bg-blue-500 text-white px-4 py-2 rounded-lg"

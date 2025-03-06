@@ -5,13 +5,14 @@ import { createContext, useState } from "react";
 
 export function ClientProvider({ children }) {
   const [user, setUser] = useState({});
-  const [loggedIn, setLoggedIn] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
   const [openModalProduct, setOpenModalProduct] = useState(false);
-  const [creditDetail, setCreditDetail] = useState({});
+  const [productDetail, setproductDetail] = useState({});
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [allCards, setAllCards] = useState([])
   const [tipoModal, setTipoModal] = useState("create");
+  const [admin, setAdmin] = useState('0');
 
     const handleOpenModalProduct = () => {
       setOpenModalProduct(true)
@@ -49,12 +50,14 @@ export function ClientProvider({ children }) {
         user,
         login,
         loggedIn,
+        setAdmin,
+        admin,
         setLoggedIn,
         handleOpenModalProduct,
         handleCloseModalProduct,
         openModalProduct,
-        creditDetail,
-        setCreditDetail,
+        productDetail,
+        setproductDetail,
         allCards,
         setAllCards,
         itemsPerPage,
