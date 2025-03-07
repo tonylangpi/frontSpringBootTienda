@@ -1,4 +1,4 @@
-//import {use} from 'react';
+import {use} from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -14,7 +14,7 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import { ClientContext } from "../../providers/context-auth";
+import { BuyContext } from "../../providers/car-buy-context";
 //import {settingsUser} from '../../columns/MenuOptions';
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -22,6 +22,9 @@ import Swal from "sweetalert2";
 function NavbarClient() {
 
     const navigate = useNavigate();
+    const {
+        listDetails
+    } = use(BuyContext);
 //    const {
 //     setLoggedIn,
 //      } = use(ClientContext);
@@ -72,6 +75,10 @@ function NavbarClient() {
     navigate("/");
   };
 
+  const handleClickBuyCar = () => {
+    navigate("/buyCar");
+    };
+
 return (
     <AppBar position="static" sx={{ backgroundColor: '#00bcd4' }}>
         <Container maxWidth="xl">
@@ -116,14 +123,34 @@ return (
                 <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                 </Box>
                 <Box sx={{ flexGrow: 0 }}>
-                <Tooltip onClick={() =>handleClickTienda()} title="Tienda">
+                    <Tooltip onClick={() => handleClickTienda()} title="Tienda">
                         <IconButton sx={{ p: 3 }}>
                             <StorefrontIcon sx={{ fontSize: 30 }} />
                         </IconButton>
                     </Tooltip>
                     <Tooltip title="Carrito de Compras">
-                        <IconButton sx={{ p: 3 }}>
+                        <IconButton onClick={() => handleClickBuyCar()} sx={{ p: 3 }}>
                             <ShoppingCartIcon sx={{ fontSize: 30 }} />
+                            {listDetails.length > 0 && (
+                                <Box
+                                    sx={{
+                                        position: 'absolute',
+                                        top: 10,
+                                        right: 10,
+                                        backgroundColor: 'red',
+                                        borderRadius: '50%',
+                                        width: 20,
+                                        height: 20,
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        color: 'white',
+                                        fontSize: 12,
+                                    }}
+                                >
+                                    {listDetails.length}
+                                </Box>
+                            )}
                         </IconButton>
                     </Tooltip>
                     <Tooltip title="Iniciar Sesión como Admin">

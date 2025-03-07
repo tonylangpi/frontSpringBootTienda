@@ -5,7 +5,9 @@ import AdminPanel from './Components/AdminPages/AdminPanel.jsx';
 import NavbarAdminPanel from './Components/AdminPages/NavbarAdminPanel.jsx';
 import Inventory from './Components/AdminPages/Inventory.jsx';
 import  NavbarClient from './Components/ClientsPages/NavbarClient.jsx'
-import Login from './Components/AdminPages/loginAdminPanel.jsx'
+import Login from './Components/AdminPages/loginAdminPanel.jsx';
+import DetailProduct from './Components/ClientsPages/DetailProduct.jsx';
+import CarBuyList from './Components/ClientsPages/CarBuyList.jsx';
 import './App.css'
 import {
   Routes,
@@ -43,6 +45,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/detailProd/:id" element={<DetailProduct />} />
+            <Route path="/buyCar" element={<CarBuyList />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
