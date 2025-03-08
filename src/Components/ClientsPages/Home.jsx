@@ -23,7 +23,7 @@ const Home = () => {
   } = use(ClientContext);
   
   const{ 
-    setListDetails
+    setCarrito
   } = use(BuyContext);
 
   const oferts = useFetchData("/products/all");
@@ -41,15 +41,41 @@ const Home = () => {
   };
 
   const addCarBuy = (card) => {
-    return () => { // se cargan los productos al carrito
-      setListDetails((prev) => [...prev, card]);
-     Swal.fire({
-                    title: "¡Éxito!",
-                    text: `Se ha agregado ${card.nombre} al carrito`,
-                    icon: "success",
-                  });
+    return () => {
+      setCarrito((prev) => {
+        const existingItem = prev.find((item) => item.id === card.id);
+        const currentQuantity = existingItem ? existingItem.quantity : 0;
+        const totalQuantity = currentQuantity + 1;
+
+        console.log("existencia", existingItem);
+        console.log("total cantidad", totalQuantity);
+
+        if (totalQuantity > card.cantidad_disponible) {
+          Swal.fire({
+            title: "Error",
+            text: `No hay suficientes existencias de ${card.nombre}.`,
+            icon: "error",
+          });
+          return prev; // Detenemos la actualización del estado
+        } else {
+          Swal.fire({
+            title: "Éxito",
+            text: `${card.nombre} ha sido agregado al carrito.`,
+            icon: "success",
+          });
+          // Si hay espacio, actualizar cantidad o agregar nuevo producto
+          if (existingItem) {
+            return prev.map((item) =>
+              item.id === card.id ? { ...item, quantity: totalQuantity } : item
+            );
+          } else {
+            return [...prev, { ...card, quantity: 1 }];
+          }
+        }
+      });
     };
-  }
+  };
+  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">

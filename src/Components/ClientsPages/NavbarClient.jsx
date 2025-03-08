@@ -23,7 +23,7 @@ function NavbarClient() {
 
     const navigate = useNavigate();
     const {
-        listDetails
+        carrito
     } = use(BuyContext);
 //    const {
 //     setLoggedIn,
@@ -131,7 +131,7 @@ return (
                     <Tooltip title="Carrito de Compras">
                         <IconButton onClick={() => handleClickBuyCar()} sx={{ p: 3 }}>
                             <ShoppingCartIcon sx={{ fontSize: 30 }} />
-                            {listDetails.length > 0 && (
+                            {carrito.length > 0 && (
                                 <Box
                                     sx={{
                                         position: 'absolute',
@@ -148,7 +148,7 @@ return (
                                         fontSize: 12,
                                     }}
                                 >
-                                    {listDetails.length}
+                                    {carrito.length}
                                 </Box>
                             )}
                         </IconButton>

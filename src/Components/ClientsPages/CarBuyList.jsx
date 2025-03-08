@@ -1,81 +1,496 @@
-import { useState, use} from "react";
-import { Button, IconButton, Card, CardContent } from "@mui/material";
-import { Add, Remove, Delete } from "@mui/icons-material";
+import {use, useState, useEffect} from 'react';
+import {StepLabel,Button,Typography,TextField, Radio,RadioGroup, FormControlLabel, FormControl, FormLabel, Step, Stepper, Box} from '@mui/material';
+import { useForm, Controller } from 'react-hook-form';
+//import visaLogo from "@/../public/visa.png";
+//import Image from "next/image";
+//import {updateTotalCredit} from "@/services/auth"
+import Swal from 'sweetalert2';
 import { BuyContext } from "../../providers/car-buy-context";
+//import { useSession } from "next-auth/react";
+import SelectBank from "../inputs/selectInput";
+import { Card, CardContent } from '@mui/material';
 
-export default function CarBuyList() {
-  const [quantity, setQuantity] = useState(1);
-  const price = 1565;
+const CarBuyListOptions = ['Carrito Compras','Selecciona Método de Pago', 'Ingresa datos para el pago', 'Pago Finalizado'];
 
+const CarBuyList = () => {
+  const [activeStep, setActiveStep] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const { control, handleSubmit, formState: { errors, isValid }, reset } = useForm({ mode: 'onChange' });
+  //context of credit detail
   const{
-    listDetails,
+    carrito,
+    setCarrito
   } = use(BuyContext);
 
-   console.log(listDetails);
+   console.log(carrito);
+     // Guardar el carrito en sessionStorage cada vez que cambie
+  useEffect(() => {
+    sessionStorage.setItem("carrito", JSON.stringify(carrito));
+  }, [carrito]);
+  //session of user logged
+    //const { data: session, status } = useSession();
+  
+
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleReset = () => {
+    setActiveStep(0);
+    setPaymentMethod('');
+  };
+
+  const handlePaymentMethodChange = (event) => {
+    setPaymentMethod(event.target.value);
+    handleNext();
+  };
+
+  const PayWithCreditCard = async (data) => {
+     reset();
+    console.log(data);
+  };
+
+  const PayWithTransfer = async (data) => {
+    console.log(data);
+  };
+
+  const PayWithBankDeposit = async (data) => {
+    console.log(data);
+  };
+
+  const handleAddMore = (item) => {
+    console.log(item);
+  };
+  
+  const handleRemove = (id) => {
+    setCarrito((prev) => prev.filter((item) => item.id !== id));
+  };
+    
+
+
+  const renderForm = () => {
+    switch (paymentMethod) {
+      case 'creditCard':
+        return (
+          <form onSubmit={handleSubmit(PayWithCreditCard)}>
+            <Box>
+              <div className="flex justify-center mb-4">
+                <img src="https://banner2.cleanpng.com/20180810/uqi/9d06e2fa1413a8a2e29f61ef3afd67b9.webp" alt="Visa Logo" className="h-7 w-7" />
+              </div>
+              <Controller
+                name="NUMCARD"
+                control={control}
+                defaultValue={""}
+                rules={{
+                  required: "Número de tarjeta es requerido",
+                  pattern: {
+                    value: /^(?:\d{4} \d{4} \d{4} \d{4})$/,
+                    message:
+                      "Formato de tarjeta inválido, debe ser 0000 0000 0000 0000",
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Número de tarjeta"
+                    fullWidth
+                    margin="normal"
+                    error={!!errors.NUMCARD}
+                    helperText={errors.NUMCARD ? errors.NUMCARD.message : ""}
+                  />
+                )}
+              />
+              <Controller
+                name="EXPIRIDATE"
+                control={control}
+                defaultValue={""}
+                rules={{
+                  required: "Fecha de expiración es requerida",
+                  pattern: {
+                    value: /^(0[1-9]|1[0-2])\/?([0-9]{2})$/,
+                    message: "Formato de fecha inválido, debe ser MM/YY",
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Fecha de expiración"
+                    fullWidth
+                    margin="normal"
+                    error={!!errors.EXPIRIDATE}
+                    helperText={
+                      errors.EXPIRIDATE ? errors.EXPIRIDATE.message : ""
+                    }
+                  />
+                )}
+              />
+              <Controller
+                name="CVV"
+                control={control}
+                defaultValue={""}
+                rules={{
+                  required: "CVV es requerido",
+                  pattern: {
+                    value: /^\d{3}$/,
+                    message: "CVV inválido son 3 digitos numéricos xxx",
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="CVV"
+                    fullWidth
+                    margin="normal"
+                    error={!!errors.CVV}
+                    helperText={errors.CVV ? errors.CVV.message : ""}
+                  />
+                )}
+              />
+              <Controller
+                name="MONTO"
+                control={control}
+                defaultValue={""}
+                rules={{
+                  required: "Monto requerido",
+                  pattern: {
+                    value: /^\d+(\.\d{1,2})?$/,
+                    message: "Monto inválido debe ser numérico",
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="MONTO"
+                    fullWidth
+                    margin="normal"
+                    error={!!errors.MONTO}
+                    helperText={errors.MONTO ? errors.MONTO.message : ""}
+                  />
+                )}
+              />
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+              <Button
+                color="warning"
+                disabled={activeStep === 0}
+                onClick={handleBack}
+                sx={{ mr: 1 }}
+              >
+                Atrás
+              </Button>
+              <Box sx={{ flex: "1 1 auto" }} />
+              <Button type="submit" color="warning" disabled={!isValid}>
+                {activeStep === CarBuyListOptions.length - 1 ? "Finalizar" : "Siguiente"}
+              </Button>
+            </Box>
+          </form>
+        );
+      case 'bankDeposit':
+        return (
+          <Box>
+            <form onSubmit={handleSubmit(PayWithBankDeposit)}>
+              <Controller
+                name="NUMTICKET"
+                control={control}
+                defaultValue=""
+                rules={{ required: "Número de boleta requerido" }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Número de Boleta"
+                    fullWidth
+                    margin="normal"
+                    error={!!errors.NUMTICKET}
+                    helperText={
+                      errors.NUMTICKET ? errors.NUMTICKET.message : ""
+                    }
+                  />
+                )}
+              />
+              <SelectBank
+                name="BANK"
+                control={control}
+                defaultValue=""
+                label="Banco"
+                items={[
+                  { value: "BANRURAL", label: "BANRURAL" },
+                  { value: "BANCO INDUSTRIAL", label: "BANCO INDUSTRIAL" },
+                  { value: "BANCO DE GUATEMALA", label: "BANCO DE GUATEMALA" },
+                ]}
+              />
+              <Controller
+                name="MONTO"
+                control={control}
+                defaultValue=""
+                rules={{
+                  required: "Monto requerido",
+                  pattern: {
+                    value: /^\d+(\.\d{1,2})?$/,
+                    message: "Monto inválido debe ser numérico",
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="MONTO"
+                    fullWidth
+                    margin="normal"
+                    error={!!errors.MONTO}
+                    helperText={errors.MONTO ? errors.MONTO.message : ""}
+                  />
+                )}
+              />
+              <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                <Button
+                  color="warning"
+                  disabled={activeStep === 0}
+                  onClick={handleBack}
+                  sx={{ mr: 1 }}
+                >
+                  Atrás
+                </Button>
+                <Box sx={{ flex: "1 1 auto" }} />
+                <Button type="submit" color="warning" disabled={!isValid}>
+                  {activeStep === CarBuyListOptions.length - 1 ? "Finalizar" : "Siguiente"}
+                </Button>
+              </Box>
+            </form>
+          </Box>
+        );
+      case 'transfer':
+        return (
+          <Box>
+            <form onSubmit={handleSubmit(PayWithTransfer)}>
+              <Controller
+                name="sourceAccount"
+                control={control}
+                defaultValue=""
+                rules={{
+                  required: "Número de cuenta de origen es requerido",
+                  pattern: {
+                    value: /^\d+(\.\d{1,2})?$/,
+                    message: "Monto inválido debe ser numérico",
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Número de cuenta de origen"
+                    fullWidth
+                    margin="normal"
+                    error={!!errors.sourceAccount}
+                    helperText={
+                      errors.sourceAccount ? errors.sourceAccount.message : ""
+                    }
+                  />
+                )}
+              />
+              <Controller
+                name="destinationAccount"
+                control={control}
+                defaultValue=""
+                rules={{
+                  required: "Número de cuenta de destino es requerido",
+                  pattern: {
+                    value: /^\d+(\.\d{1,2})?$/,
+                    message: "Monto inválido debe ser numérico",
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Número de cuenta de destino"
+                    fullWidth
+                    margin="normal"
+                    error={!!errors.destinationAccount}
+                    helperText={
+                      errors.destinationAccount
+                        ? errors.destinationAccount.message
+                        : ""
+                    }
+                  />
+                )}
+              />
+              <Controller
+                name="amount"
+                control={control}
+                defaultValue=""
+                rules={{
+                  required: "Monto es requerido",
+                  pattern: {
+                    value: /^\d+(\.\d{1,2})?$/,
+                    message: "Monto inválido debe ser numérico",
+                  },
+                }}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Monto"
+                    fullWidth
+                    margin="normal"
+                    error={!!errors.amount}
+                    helperText={errors.amount ? errors.amount.message : ""}
+                  />
+                )}
+              />
+              <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                <Button
+                  color="warning"
+                  disabled={activeStep === 0}
+                  onClick={handleBack}
+                  sx={{ mr: 1 }}
+                >
+                  Atrás
+                </Button>
+                <Box sx={{ flex: "1 1 auto" }} />
+                <Button type="submit" color="warning" disabled={!isValid}>
+                  {activeStep === CarBuyListOptions.length - 1 ? "Finalizar" : "Siguiente"}
+                </Button>
+              </Box>
+            </form>
+          </Box>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Progreso de compra */}
-      <div className="flex justify-between items-center border-b pb-3 mb-4">
-        <div className="text-orange-500 font-semibold">1. Mi carrito</div>
-        <div className="text-gray-400">2. Pago</div>
-        <div className="text-gray-400">3. Fin del pedido</div>
-      </div>
-      
-      {/* Métodos de Entrega y Pago */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div>
-          <h2 className="font-bold mb-2">Método de entrega</h2>
-          <Button variant="outlined" className="mr-2">Recoger en tienda</Button>
-          <Button variant="outlined" disabled>A domicilio</Button>
-        </div>
-        <div>
-          <h2 className="font-bold mb-2">Método de pago</h2>
-          <Button variant="outlined" className="mr-2">Tarjeta</Button>
-          <Button variant="outlined" disabled>Monetario</Button>
-        </div>
-      </div>
-
-      {/* Carrito */}
-      <Card className="mb-6">
+    <Box sx={{ width: "100%" }}>
+      <Card className='p-4'>
         <CardContent>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <img src="https://via.placeholder.com/80" alt="Tablet" className="mr-4 rounded-lg" />
-              <div>
-                <h3 className="font-semibold">Tablet Redmi Pad Se 4gb 128gb 8.7"</h3>
-                <p className="text-gray-600">Precio unitario: Q{price}</p>
-              </div>
-            </div>
-            <div className="flex items-center">
-              <IconButton onClick={() => setQuantity(Math.max(1, quantity - 1))}><Remove /></IconButton>
-              <span className="mx-2 font-semibold">{quantity}</span>
-              <IconButton onClick={() => setQuantity(quantity + 1)}><Add /></IconButton>
-              <IconButton className="text-red-500 ml-4"><Delete /></IconButton>
-            </div>
+          <Stepper activeStep={activeStep}>
+            {CarBuyListOptions.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+          <div>
+            {activeStep === CarBuyListOptions.length - 1 ? (
+              <>
+                <Typography variant="h5" sx={{ mt: 2, mb: 1 }}>
+                  Paso Final se ha enviado a tu correo el comprobante de pago
+                </Typography>
+                <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                  <Box sx={{ flex: "1 1 auto" }} />
+                  <Button onClick={handleReset} color="warning">
+                    Reiniciar
+                  </Button>
+                </Box>
+              </>
+            ) : (
+              <>
+                <Typography sx={{ mt: 2, mb: 1 }} variant="h5">
+                  Paso {activeStep + 1} las entregas son a domicilio
+                </Typography>
+                <Box sx={{ display: "flex", flexDirection: "column", pt: 2 }}>
+                  {activeStep === 0 && (
+                    <>
+                      <h1>Productos añadidos al carrito</h1>
+                      {carrito.map((item, index) => (
+                        <Box
+                          key={index}
+                          sx={{
+                            display: "flex",
+                            flexDirection: "row",
+                            mb: 2,
+                            alignItems: "center",
+                          }}
+                        >
+                          <Box sx={{ flex: 1 }}>
+                            <Typography variant="h6">{item.nombre}</Typography>
+                            <Typography variant="body2">
+                              Precio: {item.precio_unitario}
+                            </Typography>
+                            <Typography variant="body2">
+                              Cantidad: {item.cantidad_disponible}
+                            </Typography>
+                          </Box>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleAddMore(item)}
+                            sx={{ mr: 1 }}
+                          >
+                            Agregar más
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => handleRemove(item.id)}
+                          >
+                            Eliminar
+                          </Button>
+                        </Box>
+                      ))}
+                    </>
+                  )}
+                  {activeStep === 1 && (
+                    <>
+                      <FormControl component="fieldset">
+                        <FormLabel component="legend">Método de Pago</FormLabel>
+                        <RadioGroup
+                          aria-label="paymentMethod"
+                          name="paymentMethod"
+                          value={paymentMethod}
+                          onChange={handlePaymentMethodChange}
+                        >
+                          <FormControlLabel
+                            value="creditCard"
+                            control={<Radio />}
+                            label="Tarjeta de Crédito"
+                          />
+                          <FormControlLabel
+                            value="bankDeposit"
+                            control={<Radio />}
+                            label="Depósito Bancario"
+                          />
+                          <FormControlLabel
+                            value="transfer"
+                            control={<Radio />}
+                            label="Transferencia"
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </>
+                  )}
+                  {activeStep === 2 && <>{renderForm()}</>}
+                  {activeStep === 3 && (
+                    <>
+                      <Typography sx={{ mt: 2, mb: 1 }}>
+                        Confirmación del pago
+                      </Typography>
+                      <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                        <Button
+                          color="inherit"
+                          disabled={activeStep === 0}
+                          onClick={handleBack}
+                          sx={{ mr: 1 }}
+                        >
+                          Atrás
+                        </Button>
+                        <Box sx={{ flex: "1 1 auto" }} />
+                        <Button type="submit" disabled={!isValid}>
+                          {activeStep === CarBuyListOptions.length - 1
+                            ? "Finalizar"
+                            : "Siguiente"}
+                        </Button>
+                      </Box>
+                    </>
+                  )}
+                </Box>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
-
-      {/* Resumen */}
-      <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
-        <h2 className="font-bold mb-2">Resumen</h2>
-        <div className="flex justify-between">
-          <span>Sub Total</span>
-          <span>Q{price * quantity}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Descuento</span>
-          <span>- Q0</span>
-        </div>
-        <div className="flex justify-between font-bold text-lg mt-2">
-          <span>Total</span>
-          <span>Q{price * quantity}</span>
-        </div>
-        <Button variant="contained" color="primary" fullWidth className="mt-4">Finalizar mi compra</Button>
-        <Button variant="outlined" fullWidth className="mt-2">Agregar otro producto</Button>
-        <Button variant="text" fullWidth className="mt-2 text-gray-500">Limpiar mi carrito</Button>
-      </div>
-    </div>
+    </Box>
   );
-}
+};
+
+export default CarBuyList;
