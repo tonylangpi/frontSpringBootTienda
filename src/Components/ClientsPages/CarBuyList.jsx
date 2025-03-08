@@ -1,35 +1,47 @@
-import {use, useState, useEffect} from 'react';
-import {StepLabel,Button,Typography,TextField, Radio,RadioGroup, FormControlLabel, FormControl, FormLabel, Step, Stepper, Box} from '@mui/material';
-import { useForm, Controller } from 'react-hook-form';
-//import visaLogo from "@/../public/visa.png";
-//import Image from "next/image";
-//import {updateTotalCredit} from "@/services/auth"
-import Swal from 'sweetalert2';
+import { use, useState, useEffect } from "react";
+import {
+  StepLabel,
+  Button,
+  Typography,
+  TextField,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  Step,
+  Stepper,
+  Box,
+} from "@mui/material";
+import { useForm, Controller } from "react-hook-form";
+import Swal from "sweetalert2";
 import { BuyContext } from "../../providers/car-buy-context";
-//import { useSession } from "next-auth/react";
 import SelectBank from "../inputs/selectInput";
-import { Card, CardContent } from '@mui/material';
+import { Card, CardContent } from "@mui/material";
 
-const CarBuyListOptions = ['Carrito Compras','Selecciona Método de Pago', 'Ingresa datos para el pago', 'Pago Finalizado'];
+const CarBuyListOptions = [
+  "Carrito Compras",
+  "Selecciona Método de Pago",
+  "Ingresa datos para el pago",
+  "Pago Finalizado",
+];
 
 const CarBuyList = () => {
   const [activeStep, setActiveStep] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const { control, handleSubmit, formState: { errors, isValid }, reset } = useForm({ mode: 'onChange' });
-  //context of credit detail
-  const{
-    carrito,
-    setCarrito
-  } = use(BuyContext);
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isValid },
+    reset,
+  } = useForm({ mode: "onChange" });
+  //context of car buy
+  const { carrito, setCarrito } = use(BuyContext);
 
-   console.log(carrito);
-     // Guardar el carrito en sessionStorage cada vez que cambie
+  // Guardar el carrito en sessionStorage cada vez que cambie
   useEffect(() => {
     sessionStorage.setItem("carrito", JSON.stringify(carrito));
   }, [carrito]);
-  //session of user logged
-    //const { data: session, status } = useSession();
-  
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -41,7 +53,7 @@ const CarBuyList = () => {
 
   const handleReset = () => {
     setActiveStep(0);
-    setPaymentMethod('');
+    setPaymentMethod("");
   };
 
   const handlePaymentMethodChange = (event) => {
@@ -50,7 +62,7 @@ const CarBuyList = () => {
   };
 
   const PayWithCreditCard = async (data) => {
-     reset();
+    reset();
     console.log(data);
   };
 
@@ -62,24 +74,76 @@ const CarBuyList = () => {
     console.log(data);
   };
 
-  const handleAddMore = (item) => {
-    console.log(item);
+  const addCarBuy = (card) => {
+    return async () => {
+       try {
+            const response = await fetch(`http://localhost:9090/products/detail/${card.id}`);
+            const productDetail = await response.json();
+            console.log(productDetail);
+            if (response.ok) {
+              const availableQuantity = productDetail.cantidad_disponible;
+      
+              setCarrito((prev) => {
+                const existingItem = prev.find((item) => item.id === card.id);
+                const currentQuantity = existingItem ? existingItem.quantity : 0;
+                const totalQuantity = currentQuantity + 1;
+      
+                if (totalQuantity > availableQuantity) {
+                  Swal.fire({
+                    title: "Error",
+                    text: `No hay suficientes existencias de ${card.nombre}.`,
+                    icon: "error",
+                  });
+                  return prev; // Detenemos la actualización del estado
+                } else {
+                  Swal.fire({
+                    title: "Éxito",
+                    text: `${card.nombre} ha sido agregado al carrito.`,
+                    icon: "success",
+                  });
+                  // Si hay espacio, actualizar cantidad o agregar nuevo producto
+                  if (existingItem) {
+                    return prev.map((item) =>
+                      item.id === card.id ? { ...item, quantity: totalQuantity } : item
+                    );
+                  } else {
+                    return [...prev, { ...card, quantity: 1 }];
+                  }
+                }
+              });
+            } else {
+              Swal.fire({
+                title: "Error",
+                text: `No se pudo obtener la información del producto.`,
+                icon: "error",
+              });
+            }
+          } catch (error) {
+            Swal.fire({
+              title: "Error",
+              text: `Ocurrió un error al obtener la información del producto.${error}`,
+              icon: "error",
+            });
+          }
+    };
   };
-  
+
   const handleRemove = (id) => {
     setCarrito((prev) => prev.filter((item) => item.id !== id));
   };
-    
-
 
   const renderForm = () => {
     switch (paymentMethod) {
-      case 'creditCard':
+      case "creditCard":
         return (
           <form onSubmit={handleSubmit(PayWithCreditCard)}>
             <Box>
               <div className="flex justify-center mb-4">
-                <img src="https://banner2.cleanpng.com/20180810/uqi/9d06e2fa1413a8a2e29f61ef3afd67b9.webp" alt="Visa Logo" className="h-7 w-7" />
+                <img
+                  src="https://banner2.cleanpng.com/20180810/uqi/9d06e2fa1413a8a2e29f61ef3afd67b9.webp"
+                  alt="Visa Logo"
+                  className="h-7 w-7"
+                />
               </div>
               <Controller
                 name="NUMCARD"
@@ -184,12 +248,14 @@ const CarBuyList = () => {
               </Button>
               <Box sx={{ flex: "1 1 auto" }} />
               <Button type="submit" color="warning" disabled={!isValid}>
-                {activeStep === CarBuyListOptions.length - 1 ? "Finalizar" : "Siguiente"}
+                {activeStep === CarBuyListOptions.length - 1
+                  ? "Finalizar"
+                  : "Siguiente"}
               </Button>
             </Box>
           </form>
         );
-      case 'bankDeposit':
+      case "bankDeposit":
         return (
           <Box>
             <form onSubmit={handleSubmit(PayWithBankDeposit)}>
@@ -255,13 +321,15 @@ const CarBuyList = () => {
                 </Button>
                 <Box sx={{ flex: "1 1 auto" }} />
                 <Button type="submit" color="warning" disabled={!isValid}>
-                  {activeStep === CarBuyListOptions.length - 1 ? "Finalizar" : "Siguiente"}
+                  {activeStep === CarBuyListOptions.length - 1
+                    ? "Finalizar"
+                    : "Siguiente"}
                 </Button>
               </Box>
             </form>
           </Box>
         );
-      case 'transfer':
+      case "transfer":
         return (
           <Box>
             <form onSubmit={handleSubmit(PayWithTransfer)}>
@@ -348,7 +416,9 @@ const CarBuyList = () => {
                 </Button>
                 <Box sx={{ flex: "1 1 auto" }} />
                 <Button type="submit" color="warning" disabled={!isValid}>
-                  {activeStep === CarBuyListOptions.length - 1 ? "Finalizar" : "Siguiente"}
+                  {activeStep === CarBuyListOptions.length - 1
+                    ? "Finalizar"
+                    : "Siguiente"}
                 </Button>
               </Box>
             </form>
@@ -361,7 +431,7 @@ const CarBuyList = () => {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Card className='p-4'>
+      <Card className="p-4">
         <CardContent>
           <Stepper activeStep={activeStep}>
             {CarBuyListOptions.map((label) => (
@@ -405,19 +475,41 @@ const CarBuyList = () => {
                           <Box sx={{ flex: 1 }}>
                             <Typography variant="h6">{item.nombre}</Typography>
                             <Typography variant="body2">
-                              Precio: {item.precio_unitario}
+                              Precio: Q. {item.precio_unitario.toLocaleString()}
                             </Typography>
                             <Typography variant="body2">
-                              Cantidad: {item.cantidad_disponible}
+                              Cantidad Solicitada: {item.quantity}
                             </Typography>
                           </Box>
                           <Button
                             variant="contained"
                             color="primary"
-                            onClick={() => handleAddMore(item)}
+                            onClick={addCarBuy(item)}
                             sx={{ mr: 1 }}
                           >
-                            Agregar más
+                            Agregar 1 más
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => {
+                              const existingItem = carrito.find(
+                                (item) => item.id === item.id
+                              );
+                              if (existingItem.quantity > 1) {
+                                setCarrito((prev) =>
+                                  prev.map((item) =>
+                                    item.id === existingItem.id
+                                      ? { ...item, quantity: item.quantity - 1 }
+                                      : item
+                                  )
+                                );
+                              } else {
+                                handleRemove(item.id);
+                              }
+                            }}
+                          >
+                            Quitar 1
                           </Button>
                           <Button
                             variant="contained"
@@ -428,6 +520,40 @@ const CarBuyList = () => {
                           </Button>
                         </Box>
                       ))}
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: "bold", mt: 2 }}
+                      >
+                        Total Carrito: Q.{" "}
+                        {carrito
+                          .reduce(
+                            (acc, item) =>
+                              acc + item.quantity * item.precio_unitario,
+                            0
+                          )
+                          .toLocaleString()}
+                      </Typography>
+                      <Box
+                        sx={{ display: "flex", flexDirection: "row", pt: 2 }}
+                      >
+                        <Button
+                          color="warning"
+                          disabled={activeStep === 0}
+                          onClick={handleBack}
+                          sx={{ mr: 1 }}
+                        >
+                          Atrás
+                        </Button>
+                        <Box sx={{ flex: "1 1 auto" }} />
+                        <Button
+                          variant="contained"
+                          color="warning"
+                          onClick={handleNext}
+                          disabled={carrito.length === 0}
+                        >
+                          Siguiente
+                        </Button>
+                      </Box>
                     </>
                   )}
                   {activeStep === 1 && (
@@ -456,6 +582,27 @@ const CarBuyList = () => {
                             label="Transferencia"
                           />
                         </RadioGroup>
+                        <Box
+                        sx={{ display: "flex", flexDirection: "row", pt: 2 }}
+                      >
+                        <Button
+                          color="warning"
+                          disabled={activeStep === 0}
+                          onClick={handleBack}
+                          sx={{ mr: 1 }}
+                        >
+                          Atrás
+                        </Button>
+                        <Box sx={{ flex: "1 1 auto" }} />
+                        <Button
+                          variant="contained"
+                          color="warning"
+                          onClick={handleNext}
+                          disabled={carrito.length === 0}
+                        >
+                          Siguiente
+                        </Button>
+                      </Box>
                       </FormControl>
                     </>
                   )}
@@ -465,7 +612,9 @@ const CarBuyList = () => {
                       <Typography sx={{ mt: 2, mb: 1 }}>
                         Confirmación del pago
                       </Typography>
-                      <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                      <Box
+                        sx={{ display: "flex", flexDirection: "row", pt: 2 }}
+                      >
                         <Button
                           color="inherit"
                           disabled={activeStep === 0}

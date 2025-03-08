@@ -40,40 +40,56 @@ const Home = () => {
     navigate(`/detailProd/${id}`);
   };
 
-  const addCarBuy = (card) => {
-    return () => {
-      setCarrito((prev) => {
-        const existingItem = prev.find((item) => item.id === card.id);
-        const currentQuantity = existingItem ? existingItem.quantity : 0;
-        const totalQuantity = currentQuantity + 1;
+  const addCarBuy = async (card) => {
+     try {
+      const response = await fetch(`http://localhost:9090/products/detail/${card.id}`);
+      const productDetail = await response.json();
+      console.log(productDetail);
+      if (response.ok) {
+        const availableQuantity = productDetail.cantidad_disponible;
 
-        console.log("existencia", existingItem);
-        console.log("total cantidad", totalQuantity);
+        setCarrito((prev) => {
+          const existingItem = prev.find((item) => item.id === card.id);
+          const currentQuantity = existingItem ? existingItem.quantity : 0;
+          const totalQuantity = currentQuantity + 1;
 
-        if (totalQuantity > card.cantidad_disponible) {
-          Swal.fire({
-            title: "Error",
-            text: `No hay suficientes existencias de ${card.nombre}.`,
-            icon: "error",
-          });
-          return prev; // Detenemos la actualización del estado
-        } else {
-          Swal.fire({
-            title: "Éxito",
-            text: `${card.nombre} ha sido agregado al carrito.`,
-            icon: "success",
-          });
-          // Si hay espacio, actualizar cantidad o agregar nuevo producto
-          if (existingItem) {
-            return prev.map((item) =>
-              item.id === card.id ? { ...item, quantity: totalQuantity } : item
-            );
+          if (totalQuantity > availableQuantity) {
+            Swal.fire({
+              title: "Error",
+              text: `No hay suficientes existencias de ${card.nombre}.`,
+              icon: "error",
+            });
+            return prev; // Detenemos la actualización del estado
           } else {
-            return [...prev, { ...card, quantity: 1 }];
+            Swal.fire({
+              title: "Éxito",
+              text: `${card.nombre} ha sido agregado al carrito.`,
+              icon: "success",
+            });
+            // Si hay espacio, actualizar cantidad o agregar nuevo producto
+            if (existingItem) {
+              return prev.map((item) =>
+                item.id === card.id ? { ...item, quantity: totalQuantity } : item
+              );
+            } else {
+              return [...prev, { ...card, quantity: 1 }];
+            }
           }
-        }
+        });
+      } else {
+        Swal.fire({
+          title: "Error",
+          text: `No se pudo obtener la información del producto.`,
+          icon: "error",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: `Ocurrió un error al obtener la información del producto.${error}`,
+        icon: "error",
       });
-    };
+    }
   };
   
 
@@ -136,7 +152,7 @@ const Home = () => {
                 </p>
               </div>
               <Box sx={{ flexGrow: 0 }}>
-                <Tooltip
+                {/* <Tooltip
                   onClick={() => {
                     detailProduct(card.id);
                   }}
@@ -145,10 +161,10 @@ const Home = () => {
                   <IconButton sx={{ p: 3 }}>
                     <InfoIcon sx={{ fontSize: 30 }} />
                   </IconButton>
-                </Tooltip>
+                </Tooltip> */}
                 {card.estado === true ? (
                   <Tooltip title="Agregar al carrito">
-                    <IconButton  onClick={addCarBuy(card)}  sx={{ p: 3 }}>
+                    <IconButton  onClick={() => addCarBuy(card)}  sx={{ p: 3 }}>
                       <AddShoppingCartIcon sx={{ fontSize: 30 }} />
                     </IconButton>
                   </Tooltip>

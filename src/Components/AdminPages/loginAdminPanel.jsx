@@ -29,7 +29,6 @@ const LoginAdminPanel = () => {
   "https://static.vecteezy.com/system/resources/previews/005/210/247/non_2x/bright-abstract-background-orange-color-free-vector.jpg";
 
  const enviar = handleSubmit(async (user) => {
-         //console.log(product);
          // Simulación de envío a la API
  
          // Mostrar la alerta de carga
@@ -42,7 +41,7 @@ const LoginAdminPanel = () => {
              Swal.showLoading(); // Muestra el cargador
            },
          });
-        console.log(user);
+         
          // Simulación de envío a la API
          try {
              const res = await loginAdminUser(user);
