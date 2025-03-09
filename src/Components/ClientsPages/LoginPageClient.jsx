@@ -1,4 +1,4 @@
-import reactLogo from "../../assets/react.svg";
+import reactLogo from "../../assets/logoTienda.webp";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import InputCorreo from "../inputs/input";
@@ -80,7 +80,7 @@ const LoginPageClient = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md rounded-lg bg-blue-400 p-8 shadow-lg">
+      <div className="w-full max-w-md rounded-lg p-8 bg-blue-300 shadow-lg" >
         <div className="mb-6 flex justify-center">
           <img src={reactLogo} alt="Logo" className="h-auto w-32" />
         </div>

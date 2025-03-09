@@ -140,10 +140,10 @@ const Iventory = () => {
                 />
               </div>
               <div className="text-sm text-gray-500 mt-2">
-                <p>nombre: {card.nombre}</p>
+                <p>Nombre: {card.nombre}</p>
                 <p>Descripcion: {card.descripcion}</p>
-                <p>Descripcion: {card.precio_unitario}</p>
-                <p>Descripcion: {card.cantidad_disponible}</p>
+                <p>Precio Unitario: Q. {card.precio_unitario.toLocaleString()}</p>
+                <p>Cantidad disponible: {card.cantidad_disponible}</p>
                 <p>Estado: <span className={`font-bold ${card.estado === true ? "text-green-500" : "text-red-500"}`}>{card.estado === true ? "Disponible" : "No disponible"}</span></p>
               </div>
 
