@@ -18,6 +18,7 @@ import { BuyContext } from "../../providers/car-buy-context";
 //import {settingsUser} from '../../columns/MenuOptions';
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import LoginIcon from '@mui/icons-material/Login';
 
 function NavbarClient() {
 
@@ -71,8 +72,12 @@ function NavbarClient() {
   };
 
 
+  const handleClickCliente = () => {
+    navigate("/loginClient");
+  };
+
   const handleClickTienda = () => {
-    navigate("/");
+    navigate("/Home");
   };
 
   const handleClickBuyCar = () => {
@@ -156,6 +161,11 @@ return (
                     <Tooltip title="Iniciar Sesión como Admin">
                         <IconButton onClick={() => handleClick()} sx={{ p: 3 }}>
                             <AdminPanelSettingsIcon sx={{ fontSize: 30 }} />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Iniciar Sesión como Cliente">
+                        <IconButton onClick={() => handleClickCliente()} sx={{ p: 3 }}>
+                            <LoginIcon sx={{ fontSize: 30 }} />
                         </IconButton>
                     </Tooltip>
                 </Box>

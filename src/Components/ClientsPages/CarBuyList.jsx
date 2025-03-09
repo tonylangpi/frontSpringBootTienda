@@ -16,8 +16,10 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import Swal from "sweetalert2";
 import { BuyContext } from "../../providers/car-buy-context";
+import { ClientContext } from "../../providers/context-auth";
 import SelectBank from "../inputs/selectInput";
 import { Card, CardContent } from "@mui/material";
+//import { useNavigate } from "react-router-dom";
 
 const CarBuyListOptions = [
   "Carrito Compras",
@@ -27,6 +29,7 @@ const CarBuyListOptions = [
 ];
 
 const CarBuyList = () => {
+   //const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("");
   const {
@@ -36,11 +39,16 @@ const CarBuyList = () => {
     reset,
   } = useForm({ mode: "onChange" });
   //context of car buy
-  const { carrito, setCarrito } = use(BuyContext);
+  // const {
+  //   userClientInfo, 
+  //   setUserClientInfo
+  // }  = use(ClientContext)
+  const { carrito, setCarrito, addCarBuy } = use(BuyContext);
+
 
   // Guardar el carrito en sessionStorage cada vez que cambie
   useEffect(() => {
-    sessionStorage.setItem("carrito", JSON.stringify(carrito));
+     sessionStorage.setItem("carrito", JSON.stringify(carrito));
   }, [carrito]);
 
   const handleNext = () => {
@@ -72,60 +80,6 @@ const CarBuyList = () => {
 
   const PayWithBankDeposit = async (data) => {
     console.log(data);
-  };
-
-  const addCarBuy = (card) => {
-    return async () => {
-       try {
-            const response = await fetch(`http://localhost:9090/products/detail/${card.id}`);
-            const productDetail = await response.json();
-            console.log(productDetail);
-            if (response.ok) {
-              const availableQuantity = productDetail.cantidad_disponible;
-      
-              setCarrito((prev) => {
-                const existingItem = prev.find((item) => item.id === card.id);
-                const currentQuantity = existingItem ? existingItem.quantity : 0;
-                const totalQuantity = currentQuantity + 1;
-      
-                if (totalQuantity > availableQuantity) {
-                  Swal.fire({
-                    title: "Error",
-                    text: `No hay suficientes existencias de ${card.nombre}.`,
-                    icon: "error",
-                  });
-                  return prev; // Detenemos la actualización del estado
-                } else {
-                  Swal.fire({
-                    title: "Éxito",
-                    text: `${card.nombre} ha sido agregado al carrito.`,
-                    icon: "success",
-                  });
-                  // Si hay espacio, actualizar cantidad o agregar nuevo producto
-                  if (existingItem) {
-                    return prev.map((item) =>
-                      item.id === card.id ? { ...item, quantity: totalQuantity } : item
-                    );
-                  } else {
-                    return [...prev, { ...card, quantity: 1 }];
-                  }
-                }
-              });
-            } else {
-              Swal.fire({
-                title: "Error",
-                text: `No se pudo obtener la información del producto.`,
-                icon: "error",
-              });
-            }
-          } catch (error) {
-            Swal.fire({
-              title: "Error",
-              text: `Ocurrió un error al obtener la información del producto.${error}`,
-              icon: "error",
-            });
-          }
-    };
   };
 
   const handleRemove = (id) => {
@@ -481,43 +435,98 @@ const CarBuyList = () => {
                               Cantidad Solicitada: {item.quantity}
                             </Typography>
                           </Box>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={addCarBuy(item)}
-                            sx={{ mr: 1 }}
-                          >
-                            Agregar 1 más
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            onClick={() => {
-                              const existingItem = carrito.find(
-                                (item) => item.id === item.id
-                              );
-                              if (existingItem.quantity > 1) {
-                                setCarrito((prev) =>
-                                  prev.map((item) =>
-                                    item.id === existingItem.id
-                                      ? { ...item, quantity: item.quantity - 1 }
-                                      : item
-                                  )
+                          <Box sx={{ display: "flex", gap: 1 }}>
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              onClick={addCarBuy(item)}
+                            >
+                              Agregar 1 más
+                            </Button>
+                            <Button
+                              variant="contained"
+                              color="error"
+                              onClick={() => {
+                                const existingItem = carrito.find(
+                                  (card) => card.id === item.id
                                 );
-                              } else {
-                                handleRemove(item.id);
-                              }
-                            }}
-                          >
-                            Quitar 1
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={() => handleRemove(item.id)}
-                          >
-                            Eliminar
-                          </Button>
+
+                                if (!existingItem) return; // Si no encuentra el producto, no hace nada
+
+                                if (existingItem.quantity > 1) {
+                                  setCarrito((prev) =>
+                                    prev.map((card) =>
+                                      card.id === item.id
+                                        ? {
+                                            ...card,
+                                            quantity: card.quantity - 1,
+                                          }
+                                        : card
+                                    )
+                                  );
+
+                                  Swal.fire({
+                                    title: "Cantidad reducida",
+                                    text: `Se ha reducido en 1 la cantidad de "${item.nombre}" en el carrito.`,
+                                    icon: "info",
+                                    timer: 2500,
+                                    showConfirmButton: false,
+                                  });
+                                } else {
+                                  Swal.fire({
+                                    title: "¿Eliminar producto?",
+                                    text: `¿Deseas eliminar "${item.nombre}" del carrito?`,
+                                    icon: "warning",
+                                    showCancelButton: true,
+                                    confirmButtonText: "Sí, eliminar",
+                                    cancelButtonText: "Cancelar",
+                                  }).then((result) => {
+                                    if (result.isConfirmed) {
+                                      handleRemove(item.id);
+
+                                      Swal.fire({
+                                        title: "Producto eliminado",
+                                        text: `"${item.nombre}" ha sido eliminado del carrito.`,
+                                        icon: "success",
+                                        timer: 1500,
+                                        showConfirmButton: false,
+                                      });
+                                    }
+                                  });
+                                }
+                              }}
+                            >
+                              Quitar 1
+                            </Button>
+                            <Button
+                              variant="contained"
+                              color="secondary"
+                              onClick={() => {
+                                Swal.fire({
+                                  title: "¿Eliminar producto?",
+                                  text: `¿Deseas eliminar "${item.nombre}" del carrito?`,
+                                  icon: "warning",
+                                  showCancelButton: true,
+                                  confirmButtonText: "Sí, eliminar",
+                                  cancelButtonText: "Cancelar",
+                                }).then((result) => {
+                                  if (result.isConfirmed) {
+                                    handleRemove(item.id);
+
+                                    Swal.fire({
+                                      title: "Producto eliminado",
+                                      text: `"${item.nombre}" ha sido eliminado del carrito.`,
+                                      icon: "success",
+                                      timer: 1500,
+                                      showConfirmButton: false,
+                                    });
+                                  }
+                                });
+                              }}
+                            >
+                              Eliminar
+                            </Button>
+                          </Box>
                         </Box>
                       ))}
                       <Typography
@@ -583,26 +592,26 @@ const CarBuyList = () => {
                           />
                         </RadioGroup>
                         <Box
-                        sx={{ display: "flex", flexDirection: "row", pt: 2 }}
-                      >
-                        <Button
-                          color="warning"
-                          disabled={activeStep === 0}
-                          onClick={handleBack}
-                          sx={{ mr: 1 }}
+                          sx={{ display: "flex", flexDirection: "row", pt: 2 }}
                         >
-                          Atrás
-                        </Button>
-                        <Box sx={{ flex: "1 1 auto" }} />
-                        <Button
-                          variant="contained"
-                          color="warning"
-                          onClick={handleNext}
-                          disabled={carrito.length === 0}
-                        >
-                          Siguiente
-                        </Button>
-                      </Box>
+                          <Button
+                            color="warning"
+                            disabled={activeStep === 0}
+                            onClick={handleBack}
+                            sx={{ mr: 1 }}
+                          >
+                            Atrás
+                          </Button>
+                          <Box sx={{ flex: "1 1 auto" }} />
+                          <Button
+                            variant="contained"
+                            color="warning"
+                            onClick={handleNext}
+                            disabled={carrito.length === 0}
+                          >
+                            Siguiente
+                          </Button>
+                        </Box>
                       </FormControl>
                     </>
                   )}

@@ -43,6 +43,13 @@ export function ClientProvider({ children }) {
     setUser(user);
   }
 
+  //contexto para loguear a usuarios clientes
+  // Estado inicial del carrito (se obtiene de sessionStorage)
+  const [userClientInfo, setUserClientInfo] = useState(() => {
+    const savedClient = sessionStorage.getItem("client");
+    return savedClient ? JSON.parse(savedClient) : {};
+  });
+
   return (
     <ClientContext
       value={{
@@ -68,7 +75,9 @@ export function ClientProvider({ children }) {
         handleItemsPerPageChange,
         currentCards,
         tipoModal, 
-        setTipoModal
+        setTipoModal,
+        userClientInfo, 
+        setUserClientInfo
       }}
     >
       {children}
