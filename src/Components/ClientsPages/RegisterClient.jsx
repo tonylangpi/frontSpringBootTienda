@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import InputNombreClient from "../inputs/input.jsx";
 import InputTelefonoClient from "../inputs/input.jsx";
-import InputDireccionClient from "../inputs/input.jsx"
+import InputDireccionClient from "../inputs/input.jsx";
 import InputCorreoClient from "../inputs/input.jsx";
 import InputClaveClient from "../inputs/input.jsx";
 import InputNitClient from "../inputs/input.jsx";
@@ -12,7 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { createClient } from "../../services/admin-auth-services.js";
 
 const RegisterClientPage = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -24,7 +24,7 @@ const RegisterClientPage = () => {
     defaultValues: {
       nombre: "",
       telefono: "",
-      direccion:"",
+      direccion: "",
       correo: "",
       clave: "",
       nit: "",
@@ -46,7 +46,7 @@ const RegisterClientPage = () => {
 
     // Simulación de envío a la API
     try {
-        const res = await createClient(client)
+      const res = await createClient(client);
       console.log(res);
       if (res != null) {
         navigate("/loginClient");
@@ -75,117 +75,126 @@ const RegisterClientPage = () => {
     }
   });
 
-return (
-  <div className="flex justify-center items-center min-h-screen bg-gray-100">
-    <div className="w-full max-w-md rounded-lg bg-blue-400 p-8 shadow-lg">
-    <h2 className="text-2xl font-semibold mb-4">Crear Usuario Cliente</h2>
-            <form
-                onSubmit={enviar}
-                className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6"
-            >
-                <InputNombreClient
-                    type="text"
-                    name="nombre"
-                    label={"Nombre Cliente"}
-                    register={{
-                        ...register("nombre", {
-                            required: {
-                                value: true,
-                                message: "Campo requerido",
-                            },
-                        }),
-                    }}
-                    message={errors?.nombre?.message}
-                />
-                <InputTelefonoClient
-                    type="text"
-                    name="telefono"
-                    label={"Telefono Cliente"}
-                    register={{
-                        ...register("telefono", {
-                            required: {
-                                value: true,
-                                message: "Campo requerido",
-                            },
-                            pattern: {
-                                value: /^[0-9]{4}-[0-9]{4}$/,
-                                message: "Formato inválido. Ejemplo: 1335-3235",
-                            },
-                        }),
-                    }}
-                    message={errors?.telefono?.message}
-                />
-                 <InputDireccionClient
-                    type="text"
-                    name="direccion"
-                    label={"Direccion Cliente"}
-                    register={{
-                        ...register("direccion", {
-                            required: {
-                                value: true,
-                                message: "Campo requerido",
-                            },
-                        }),
-                    }}
-                    message={errors?.direccion?.message}
-                />
-                <InputCorreoClient
-                    type="email"
-                    name="correo"
-                    label={"Correo Cliente"}
-                    register={{
-                        ...register("correo", {
-                            required: {
-                                value: true,
-                                message: "Campo requerido",
-                            },
-                            pattern: {
-                                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-                                message: "Correo inválido",
-                            },
-                        }),
-                    }}
-                    message={errors?.correo?.message}
-                />
-                <InputClaveClient
-                    type="password"
-                    name="clave"
-                    label={"Clave Cliente"}
-                    register={{
-                        ...register("clave", {
-                            required: {
-                                value: true,
-                                message: "Campo requerido",
-                            },
-                        }),
-                    }}
-                    message={errors?.clave?.message}
-                />
-                <InputNitClient
-                    type="text"
-                    name="nit"
-                    label={"NIT Cliente"}
-                    register={{
-                        ...register("nit", {
-                            required: {
-                                value: true,
-                                message: "Campo requerido",
-                            },
-                        }),
-                    }}
-                    message={errors?.nit?.message}
-                />
-                <button
-                    type="submit"
-                    className="bg-green-500 hover:bg-green-200 cursor-pointer text-white px-4 py-2 rounded-lg"
-                >
-                    <SaveIcon />
-                    Guardar
-                </button>
-            </form>
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md rounded-lg bg-blue-400 p-8 shadow-lg">
+        <h2 className="text-2xl font-semibold mb-4">Crear Usuario Cliente</h2>
+        <form
+          onSubmit={enviar}
+          className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6"
+        >
+          <InputNombreClient
+            type="text"
+            name="nombre"
+            label={"Nombre Cliente"}
+            register={{
+              ...register("nombre", {
+                required: {
+                  value: true,
+                  message: "Campo requerido",
+                },
+              }),
+            }}
+            message={errors?.nombre?.message}
+          />
+          <InputTelefonoClient
+            type="text"
+            name="telefono"
+            label={"Telefono Cliente"}
+            register={{
+              ...register("telefono", {
+                required: {
+                  value: true,
+                  message: "Campo requerido",
+                },
+                pattern: {
+                  value: /^[0-9]{4}-[0-9]{4}$/,
+                  message: "Formato inválido. Ejemplo: 1335-3235",
+                },
+              }),
+            }}
+            message={errors?.telefono?.message}
+          />
+          <InputDireccionClient
+            type="text"
+            name="direccion"
+            label={"Direccion Cliente"}
+            register={{
+              ...register("direccion", {
+                required: {
+                  value: true,
+                  message: "Campo requerido",
+                },
+              }),
+            }}
+            message={errors?.direccion?.message}
+          />
+          <InputCorreoClient
+            type="email"
+            name="correo"
+            label={"Correo Cliente"}
+            register={{
+              ...register("correo", {
+                required: {
+                  value: true,
+                  message: "Campo requerido",
+                },
+                pattern: {
+                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                  message: "Correo inválido",
+                },
+              }),
+            }}
+            message={errors?.correo?.message}
+          />
+          <InputClaveClient
+            type="password"
+            name="clave"
+            label={"Clave Cliente"}
+            register={{
+              ...register("clave", {
+                required: {
+                  value: true,
+                  message: "Campo requerido",
+                },
+              }),
+            }}
+            message={errors?.clave?.message}
+          />
+          <InputNitClient
+            type="text"
+            name="nit"
+            label={"NIT Cliente"}
+            register={{
+              ...register("nit", {
+                required: {
+                  value: true,
+                  message: "Campo requerido",
+                },
+              }),
+            }}
+            message={errors?.nit?.message}
+          />
+          <button
+            type="submit"
+            className="bg-green-500 hover:bg-green-200 cursor-pointer text-white px-4 py-2 rounded-lg"
+          >
+            <SaveIcon />
+            Guardar
+          </button>
+        </form>
+        <p className="mt-4 text-center text-sm text-gray-600">
+          ¿Ya tienes una cuenta?{" "}
+          <Link
+            to="/LoginClient"
+            className="text-indigo-600 hover:text-indigo-700"
+          >
+            Ingresa aqui
+          </Link>
+        </p>
+      </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default RegisterClientPage;

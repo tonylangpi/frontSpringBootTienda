@@ -17,7 +17,7 @@ import { useForm, Controller } from "react-hook-form";
 import Swal from "sweetalert2";
 import { BuyContext } from "../../providers/car-buy-context";
 import { ClientContext } from "../../providers/context-auth";
-import SelectBank from "../inputs/selectInput";
+import {createFactEnc} from "../../services/ventas-enc-service"
 import { Card, CardContent } from "@mui/material";
 //import { useNavigate } from "react-router-dom";
 
@@ -29,7 +29,7 @@ const CarBuyListOptions = [
 ];
 
 const CarBuyList = () => {
-   //const navigate = useNavigate();
+  //const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("");
   const {
@@ -37,19 +37,19 @@ const CarBuyList = () => {
     handleSubmit,
     formState: { errors, isValid },
     reset,
+    setValue
   } = useForm({ mode: "onChange" });
-  //context of car buy
-  // const {
-  //   userClientInfo, 
-  //   setUserClientInfo
-  // }  = use(ClientContext)
-  const { carrito, setCarrito, addCarBuy } = use(BuyContext);
 
+  const { carrito, setCarrito, addCarBuy, saveFacturaDetails } = use(BuyContext);
+  const {
+    userClientInfo,
+  } = use(ClientContext);
 
   // Guardar el carrito en sessionStorage cada vez que cambie
   useEffect(() => {
-     sessionStorage.setItem("carrito", JSON.stringify(carrito));
-  }, [carrito]);
+    sessionStorage.setItem("carrito", JSON.stringify(carrito));
+    sessionStorage.setItem("client", JSON.stringify(userClientInfo));
+  }, [carrito, userClientInfo]);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -66,20 +66,104 @@ const CarBuyList = () => {
 
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
+    setValue("MONTO", `${carrito.reduce((acc, item) => acc + item.quantity * item.precio_unitario, 0)}`,{ shouldValidate: true });
     handleNext();
   };
 
   const PayWithCreditCard = async (data) => {
-    reset();
-    console.log(data);
+    console.log(data)
+    // Simulación de envío a la API
+        // Mostrar la alerta de carga
+        Swal.fire({
+          title: "Cargando...",
+          text: "Por favor espera mientras se envían los datos.",
+          icon: "info",
+          allowOutsideClick: false, // No se puede cerrar fuera de la alerta
+          didOpen: () => {
+            Swal.showLoading(); // Muestra el cargador
+          },
+        });
+    
+        // Simulación de envío a la API
+        try {
+          console.log(userClientInfo.id_cliente)
+          const res = await createFactEnc(userClientInfo.id_cliente);
+          console.log(res);
+          if (res != null) {
+            //Cerrar la alerta de carga y mostrar el mensaje de éxito
+            Swal.fire({
+              title: "¡Éxito!",
+              text: "Encabezado de factura generado",
+              icon: "success",
+            });
+            // Resetear el formulario
+            reset();
+            saveFacturaDetails(res)
+            handleNext();
+
+          } else {
+            Swal.fire({
+              title: "Problema",
+              text: "Error con la creacion del encabezado de la factura",
+              icon: "error",
+            });
+          }
+        } catch (error) {
+          // Si hay un error, mostrar alerta de error
+          Swal.fire({
+            title: "Error",
+            text: `Hubo un problema al enviar los datos.${error}`,
+            icon: "error",
+          });
+        }
   };
 
   const PayWithTransfer = async (data) => {
-    console.log(data);
-  };
+    console.log(data)
+    // Simulación de envío a la API
+        // Mostrar la alerta de carga
+        Swal.fire({
+          title: "Cargando...",
+          text: "Por favor espera mientras se envían los datos.",
+          icon: "info",
+          allowOutsideClick: false, // No se puede cerrar fuera de la alerta
+          didOpen: () => {
+            Swal.showLoading(); // Muestra el cargador
+          },
+        });
+    
+        // Simulación de envío a la API
+        try {
+          console.log(userClientInfo.id_cliente)
+          const res = await createFactEnc(userClientInfo.id_cliente);
+          console.log(res);
+          if (res != null) {
+            //Cerrar la alerta de carga y mostrar el mensaje de éxito
+            Swal.fire({
+              title: "¡Éxito!",
+              text: "Encabezado de factura generado",
+              icon: "success",
+            });
+            // Resetear el formulario
+            reset();
+            saveFacturaDetails(res)
+            handleNext();
 
-  const PayWithBankDeposit = async (data) => {
-    console.log(data);
+          } else {
+            Swal.fire({
+              title: "Problema",
+              text: "Error con la creacion del encabezado de la factura",
+              icon: "error",
+            });
+          }
+        } catch (error) {
+          // Si hay un error, mostrar alerta de error
+          Swal.fire({
+            title: "Error",
+            text: `Hubo un problema al enviar los datos.${error}`,
+            icon: "error",
+          });
+        }
   };
 
   const handleRemove = (id) => {
@@ -171,7 +255,12 @@ const CarBuyList = () => {
               <Controller
                 name="MONTO"
                 control={control}
-                defaultValue={""}
+                defaultValue={`${carrito
+                  .reduce(
+                    (acc, item) => acc + item.quantity * item.precio_unitario,
+                    0
+                  )
+                  .toLocaleString()}`}
                 rules={{
                   required: "Monto requerido",
                   pattern: {
@@ -208,80 +297,6 @@ const CarBuyList = () => {
               </Button>
             </Box>
           </form>
-        );
-      case "bankDeposit":
-        return (
-          <Box>
-            <form onSubmit={handleSubmit(PayWithBankDeposit)}>
-              <Controller
-                name="NUMTICKET"
-                control={control}
-                defaultValue=""
-                rules={{ required: "Número de boleta requerido" }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="Número de Boleta"
-                    fullWidth
-                    margin="normal"
-                    error={!!errors.NUMTICKET}
-                    helperText={
-                      errors.NUMTICKET ? errors.NUMTICKET.message : ""
-                    }
-                  />
-                )}
-              />
-              <SelectBank
-                name="BANK"
-                control={control}
-                defaultValue=""
-                label="Banco"
-                items={[
-                  { value: "BANRURAL", label: "BANRURAL" },
-                  { value: "BANCO INDUSTRIAL", label: "BANCO INDUSTRIAL" },
-                  { value: "BANCO DE GUATEMALA", label: "BANCO DE GUATEMALA" },
-                ]}
-              />
-              <Controller
-                name="MONTO"
-                control={control}
-                defaultValue=""
-                rules={{
-                  required: "Monto requerido",
-                  pattern: {
-                    value: /^\d+(\.\d{1,2})?$/,
-                    message: "Monto inválido debe ser numérico",
-                  },
-                }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="MONTO"
-                    fullWidth
-                    margin="normal"
-                    error={!!errors.MONTO}
-                    helperText={errors.MONTO ? errors.MONTO.message : ""}
-                  />
-                )}
-              />
-              <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-                <Button
-                  color="warning"
-                  disabled={activeStep === 0}
-                  onClick={handleBack}
-                  sx={{ mr: 1 }}
-                >
-                  Atrás
-                </Button>
-                <Box sx={{ flex: "1 1 auto" }} />
-                <Button type="submit" color="warning" disabled={!isValid}>
-                  {activeStep === CarBuyListOptions.length - 1
-                    ? "Finalizar"
-                    : "Siguiente"}
-                </Button>
-              </Box>
-            </form>
-          </Box>
         );
       case "transfer":
         return (
@@ -338,11 +353,11 @@ const CarBuyList = () => {
                 )}
               />
               <Controller
-                name="amount"
+                name="MONTO"
                 control={control}
                 defaultValue=""
                 rules={{
-                  required: "Monto es requerido",
+                  required: "Monto requerido",
                   pattern: {
                     value: /^\d+(\.\d{1,2})?$/,
                     message: "Monto inválido debe ser numérico",
@@ -354,8 +369,8 @@ const CarBuyList = () => {
                     label="Monto"
                     fullWidth
                     margin="normal"
-                    error={!!errors.amount}
-                    helperText={errors.amount ? errors.amount.message : ""}
+                    error={!!errors.MONTO}
+                    helperText={errors.amount ? errors.MONTO.message : ""}
                   />
                 )}
               />
@@ -398,7 +413,7 @@ const CarBuyList = () => {
             {activeStep === CarBuyListOptions.length - 1 ? (
               <>
                 <Typography variant="h5" sx={{ mt: 2, mb: 1 }}>
-                  Paso Final se ha enviado a tu correo el comprobante de pago
+                  Paso Final se ha realizado el pago correctamente
                 </Typography>
                 <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
                   <Box sx={{ flex: "1 1 auto" }} />
@@ -579,11 +594,6 @@ const CarBuyList = () => {
                             value="creditCard"
                             control={<Radio />}
                             label="Tarjeta de Crédito"
-                          />
-                          <FormControlLabel
-                            value="bankDeposit"
-                            control={<Radio />}
-                            label="Depósito Bancario"
                           />
                           <FormControlLabel
                             value="transfer"

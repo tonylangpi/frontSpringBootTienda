@@ -1,4 +1,4 @@
-import {use} from 'react';
+import {use, useEffect} from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -15,57 +15,30 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { BuyContext } from "../../providers/car-buy-context";
-//import {settingsUser} from '../../columns/MenuOptions';
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import LoginIcon from '@mui/icons-material/Login';
+import LogoutSharpIcon from '@mui/icons-material/LogoutSharp';
+import {ClientContext} from "../../providers/context-auth"
 
 function NavbarClient() {
 
     const navigate = useNavigate();
     const {
-        carrito
+        carrito,
+        setCarrito
     } = use(BuyContext);
-//    const {
-//     setLoggedIn,
-//      } = use(ClientContext);
-    // if (status === "loading") {
-    //   return (
-    //     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-    //       <CircularProgress />
-    //     </div>
-    //   );  // Muestra un spinner mientras la sesión se carga
-    // }
-  
-    // if (!session?.user) {
-    //   return (
-    //     <div style={{ textAlign: "center" }}>
-    //       <h2>No estás autenticado</h2>
-    //       <p>Por favor, inicia sesión para continuar.</p>
-    //     </div>
-    //   );  // Muestra un mensaje si no hay usuario autenticado
-    // }
-  // const [anchorElNav, setAnchorElNav] = React.useState(null);
-   //const [anchorElUser, setAnchorElUser] = useState(null);
 
-  // const handleOpenNavMenu = (event) => {
-  //   setAnchorElNav(event.currentTarget);
-  // };
-//   const handleOpenUserMenu = (event) => {
-//     setAnchorElUser(event.currentTarget);
-//   };
-
-  // const handleCloseNavMenu = () => {
-  //   setAnchorElNav(null);
-  // };
-
-//   const handleCloseUserMenu = () => {
-//     setAnchorElUser(null);
-//   };
-
-  // const redirectRoute = (route) => {
-  //   navigate(route);
-  // };
+        const {
+          userClientInfo,
+          setUserClientInfo
+        } = use(ClientContext);
+      
+     // Guardar el userClientInfo en sessionStorage cada vez que cambie
+     useEffect(() => {
+      sessionStorage.setItem("client", JSON.stringify(userClientInfo));
+      sessionStorage.setItem("carrito", JSON.stringify(carrito))
+    }, [userClientInfo, carrito]);
     
   const handleClick = () => {
     navigate("/login");
@@ -76,6 +49,14 @@ function NavbarClient() {
     navigate("/loginClient");
   };
 
+  const handleLogout = () => {
+    sessionStorage.removeItem("client");
+    setUserClientInfo({})
+    sessionStorage.removeItem("carrito");
+    setCarrito([])
+    navigate("/Home");
+  }
+
   const handleClickTienda = () => {
     navigate("/Home");
   };
@@ -85,7 +66,7 @@ function NavbarClient() {
     };
 
 return (
-    <AppBar position="static" sx={{ backgroundColor: '#00bcd4' }}>
+    <AppBar position="static" sx={{ backgroundColor: "#00bcd4" }}>
         <Container maxWidth="xl">
             <Toolbar disableGutters>
                 <Typography
@@ -94,19 +75,18 @@ return (
                     component="a"
                     sx={{
                         mr: 2,
-                        display: { xs: 'none', md: 'flex' },
-                        fontFamily: 'monospace',
+                        display: { xs: "none", md: "flex" },
+                        fontFamily: "monospace",
                         fontWeight: 700,
-                        letterSpacing: '.3rem',
-                        color: 'inherit',
-                        textDecoration: 'none',
+                        letterSpacing: ".3rem",
+                        color: "inherit",
+                        textDecoration: "none",
                     }}
                 >
                     CONVEX-IM STORE
                 </Typography>
 
-                <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-                </Box>
+                <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}></Box>
                 <Typography
                     variant="h5"
                     noWrap
@@ -114,19 +94,18 @@ return (
                     href="#app-bar-with-responsive-menu"
                     sx={{
                         mr: 2,
-                        display: { xs: 'flex', md: 'none' },
+                        display: { xs: "flex", md: "none" },
                         flexGrow: 1,
-                        fontFamily: 'monospace',
+                        fontFamily: "monospace",
                         fontWeight: 700,
-                        letterSpacing: '.3rem',
-                        color: 'inherit',
-                        textDecoration: 'none',
+                        letterSpacing: ".3rem",
+                        color: "inherit",
+                        textDecoration: "none",
                     }}
                 >
                     CONVEX-IM STORE
                 </Typography>
-                <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                </Box>
+                <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}></Box>
                 <Box sx={{ flexGrow: 0 }}>
                     <Tooltip onClick={() => handleClickTienda()} title="Tienda">
                         <IconButton sx={{ p: 3 }}>
@@ -139,17 +118,17 @@ return (
                             {carrito.length > 0 && (
                                 <Box
                                     sx={{
-                                        position: 'absolute',
+                                        position: "absolute",
                                         top: 10,
                                         right: 10,
-                                        backgroundColor: 'red',
-                                        borderRadius: '50%',
+                                        backgroundColor: "red",
+                                        borderRadius: "50%",
                                         width: 20,
                                         height: 20,
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        color: 'white',
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        color: "white",
                                         fontSize: 12,
                                     }}
                                 >
@@ -163,11 +142,19 @@ return (
                             <AdminPanelSettingsIcon sx={{ fontSize: 30 }} />
                         </IconButton>
                     </Tooltip>
-                    <Tooltip title="Iniciar Sesión como Cliente">
-                        <IconButton onClick={() => handleClickCliente()} sx={{ p: 3 }}>
-                            <LoginIcon sx={{ fontSize: 30 }} />
-                        </IconButton>
-                    </Tooltip>
+                    {userClientInfo && Object.keys(userClientInfo).length > 0 ? (
+                        <Tooltip title="Cerrar Sesión">
+                            <IconButton onClick={() => handleLogout()} sx={{ p: 3 }}>
+                                <LogoutSharpIcon sx={{ fontSize: 30 }} />
+                            </IconButton>
+                        </Tooltip>
+                    ) : (
+                        <Tooltip title="Iniciar Sesión como Cliente">
+                            <IconButton onClick={() => handleClickCliente()} sx={{ p: 3 }}>
+                                <LoginIcon sx={{ fontSize: 30 }} />
+                            </IconButton>
+                        </Tooltip>
+                    )}
                 </Box>
             </Toolbar>
         </Container>

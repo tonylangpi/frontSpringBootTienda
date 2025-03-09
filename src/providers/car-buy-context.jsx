@@ -1,5 +1,6 @@
 import { createContext, useState } from "react";
 import Swal from "sweetalert2";
+import {createDetails} from "../services/ventas-enc-service"
 
  export const BuyContext = createContext();
 
@@ -9,6 +10,33 @@ export function BuyProvider({ children }) {
     const savedCart = sessionStorage.getItem("carrito");
     return savedCart ? JSON.parse(savedCart) : [];
   });
+
+
+  const saveFacturaDetails = async (facturaId) => {
+    const facturaDetails = carrito.map((item) => ({
+      factura_id: facturaId,
+      id_producto: item.id,
+      cantidad: item.quantity,
+      precio_venta: item.precio_unitario
+    }));
+
+    try {
+      const response = await createDetails(facturaDetails);
+      console.log(response);
+        Swal.fire({
+          title: "Éxito",
+          text: `${response}`,
+          icon: "success",
+        });
+        setCarrito([]);
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: `Ocurrió un error al guardar los detalles de la factura. ${error}`,
+        icon: "error",
+      });
+    }
+  };
 
   const addCarBuy = (card) => {
     return async () => {
@@ -68,7 +96,7 @@ export function BuyProvider({ children }) {
   return (
     <BuyContext
       value={{
-        carrito, setCarrito,addCarBuy
+        carrito, setCarrito,addCarBuy,saveFacturaDetails
       }}
     >
       {children}
