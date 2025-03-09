@@ -12,6 +12,8 @@ export function ClientProvider({ children }) {
   const [allCards, setAllCards] = useState([])
   const [tipoModal, setTipoModal] = useState("create");
   const [admin, setAdmin] = useState('0');
+  const [infoEnca, setInfoEnca] = useState([])
+    const [infoDetail, setInfoDetail] = useState([])
 
     const handleOpenModalProduct = () => {
       setOpenModalProduct(true)
@@ -77,7 +79,9 @@ export function ClientProvider({ children }) {
         tipoModal, 
         setTipoModal,
         userClientInfo, 
-        setUserClientInfo
+        setUserClientInfo,
+        infoEnca, setInfoEnca,
+        infoDetail, setInfoDetail
       }}
     >
       {children}

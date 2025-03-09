@@ -1,6 +1,6 @@
 import { createContext, useState } from "react";
 import Swal from "sweetalert2";
-import {createDetails} from "../services/ventas-enc-service"
+import {createDetails, getHeaderFact, gertDetailsFact} from "../services/ventas-enc-service"
 
  export const BuyContext = createContext();
 
@@ -10,6 +10,9 @@ export function BuyProvider({ children }) {
     const savedCart = sessionStorage.getItem("carrito");
     return savedCart ? JSON.parse(savedCart) : [];
   });
+
+  const [infoEnca, setInfoEnca] = useState({});
+  const [detailInfo, setDetailInfo] = useState({});
 
 
   const saveFacturaDetails = async (facturaId) => {
@@ -29,6 +32,21 @@ export function BuyProvider({ children }) {
           icon: "success",
         });
         setCarrito([]);
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: `Ocurrió un error al guardar los detalles de la factura. ${error}`,
+        icon: "error",
+      });
+    }
+  };
+
+  const getHeaderFactura = async (facturaId) => {
+    try {
+      const response = await getHeaderFact(facturaId);
+      const details = await gertDetailsFact(facturaId)
+      setInfoEnca(response)
+      setDetailInfo(details);
     } catch (error) {
       Swal.fire({
         title: "Error",
@@ -96,7 +114,7 @@ export function BuyProvider({ children }) {
   return (
     <BuyContext
       value={{
-        carrito, setCarrito,addCarBuy,saveFacturaDetails
+        carrito, setCarrito,addCarBuy,saveFacturaDetails,getHeaderFactura, infoEnca,detailInfo
       }}
     >
       {children}

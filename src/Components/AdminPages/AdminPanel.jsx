@@ -7,8 +7,8 @@ const AdminPanel = () => {
 
     const navigate = useNavigate();
 
-    const handleCardClick = () => {
-      navigate('/inventory');
+    const handleCardClick = (path) => {
+      navigate(path);
     };
 
     return (
@@ -20,13 +20,23 @@ const AdminPanel = () => {
           <div className="quick-links grid grid-cols-1 sm:grid-cols-1 gap-4">
             <div 
               className="card bg-yellow-300 shadow-md rounded-lg p-4 hover:bg-green-200 cursor-pointer"
-              onClick={handleCardClick}
+              onClick={() => handleCardClick('/inventory')}
             >
               <div className="flex items-center justify-center mb-2">
                 <ProductionQuantityLimitsIcon alt="avatar" className="p-2" style={{ fontSize: 40 }} />
                 <h2 className="text-xl font-black">Inventario</h2>
               </div>
               <p className="text-black">Gestiona el inventario de productos.</p>
+            </div>
+            <div 
+              className="card bg-blue-300 shadow-md rounded-lg p-4 hover:bg-green-200 cursor-pointer"
+              onClick={() => handleCardClick('/ventas')}
+            >
+              <div className="flex items-center justify-center mb-2">
+                <ProductionQuantityLimitsIcon alt="avatar" className="p-2" style={{ fontSize: 40 }} />
+                <h2 className="text-xl font-black">Ventas</h2>
+              </div>
+              <p className="text-black">Visualiza tus ventas</p>
             </div>
           </div>
         </div>

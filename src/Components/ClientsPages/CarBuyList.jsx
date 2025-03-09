@@ -17,9 +17,9 @@ import { useForm, Controller } from "react-hook-form";
 import Swal from "sweetalert2";
 import { BuyContext } from "../../providers/car-buy-context";
 import { ClientContext } from "../../providers/context-auth";
-import {createFactEnc} from "../../services/ventas-enc-service"
+import { createFactEnc } from "../../services/ventas-enc-service";
 import { Card, CardContent } from "@mui/material";
-//import { useNavigate } from "react-router-dom";
+import FacturaPdf from '../ClientsPages/FacturaPdf'
 
 const CarBuyListOptions = [
   "Carrito Compras",
@@ -37,13 +37,19 @@ const CarBuyList = () => {
     handleSubmit,
     formState: { errors, isValid },
     reset,
-    setValue
+    setValue,
   } = useForm({ mode: "onChange" });
 
-  const { carrito, setCarrito, addCarBuy, saveFacturaDetails } = use(BuyContext);
   const {
-    userClientInfo,
-  } = use(ClientContext);
+    carrito,
+    setCarrito,
+    addCarBuy,
+    saveFacturaDetails,
+    infoEnca,
+    getHeaderFactura,
+    detailInfo,
+  } = use(BuyContext);
+  const { userClientInfo } = use(ClientContext);
 
   // Guardar el carrito en sessionStorage cada vez que cambie
   useEffect(() => {
@@ -66,104 +72,111 @@ const CarBuyList = () => {
 
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
-    setValue("MONTO", `${carrito.reduce((acc, item) => acc + item.quantity * item.precio_unitario, 0)}`,{ shouldValidate: true });
+    setValue(
+      "MONTO",
+      `${carrito.reduce(
+        (acc, item) => acc + item.quantity * item.precio_unitario,
+        0
+      )}`,
+      { shouldValidate: true }
+    );
     handleNext();
   };
 
   const PayWithCreditCard = async (data) => {
-    console.log(data)
+    console.log(data);
     // Simulación de envío a la API
-        // Mostrar la alerta de carga
-        Swal.fire({
-          title: "Cargando...",
-          text: "Por favor espera mientras se envían los datos.",
-          icon: "info",
-          allowOutsideClick: false, // No se puede cerrar fuera de la alerta
-          didOpen: () => {
-            Swal.showLoading(); // Muestra el cargador
-          },
-        });
-    
-        // Simulación de envío a la API
-        try {
-          console.log(userClientInfo.id_cliente)
-          const res = await createFactEnc(userClientInfo.id_cliente);
-          console.log(res);
-          if (res != null) {
-            //Cerrar la alerta de carga y mostrar el mensaje de éxito
-            Swal.fire({
-              title: "¡Éxito!",
-              text: "Encabezado de factura generado",
-              icon: "success",
-            });
-            // Resetear el formulario
-            reset();
-            saveFacturaDetails(res)
-            handleNext();
+    // Mostrar la alerta de carga
+    Swal.fire({
+      title: "Cargando...",
+      text: "Por favor espera mientras se envían los datos.",
+      icon: "info",
+      allowOutsideClick: false, // No se puede cerrar fuera de la alerta
+      didOpen: () => {
+        Swal.showLoading(); // Muestra el cargador
+      },
+    });
 
-          } else {
-            Swal.fire({
-              title: "Problema",
-              text: "Error con la creacion del encabezado de la factura",
-              icon: "error",
-            });
-          }
-        } catch (error) {
-          // Si hay un error, mostrar alerta de error
-          Swal.fire({
-            title: "Error",
-            text: `Hubo un problema al enviar los datos.${error}`,
-            icon: "error",
-          });
-        }
+    // Simulación de envío a la API
+    try {
+      console.log(userClientInfo.id_cliente);
+      const res = await createFactEnc(userClientInfo.id_cliente);
+      console.log(res);
+      if (res != null) {
+        //Cerrar la alerta de carga y mostrar el mensaje de éxito
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "Encabezado de factura generado",
+          icon: "success",
+        });
+        // Resetear el formulario
+        reset();
+        saveFacturaDetails(res); //guarda en bd los detalles del carrito de compra
+        getHeaderFactura(res);
+        handleNext();
+      } else {
+        Swal.fire({
+          title: "Problema",
+          text: "Error con la creacion del encabezado de la factura",
+          icon: "error",
+        });
+      }
+    } catch (error) {
+      // Si hay un error, mostrar alerta de error
+      Swal.fire({
+        title: "Error",
+        text: `Hubo un problema al enviar los datos.${error}`,
+        icon: "error",
+      });
+    }
   };
 
   const PayWithTransfer = async (data) => {
-    console.log(data)
+    console.log(data);
     // Simulación de envío a la API
-        // Mostrar la alerta de carga
-        Swal.fire({
-          title: "Cargando...",
-          text: "Por favor espera mientras se envían los datos.",
-          icon: "info",
-          allowOutsideClick: false, // No se puede cerrar fuera de la alerta
-          didOpen: () => {
-            Swal.showLoading(); // Muestra el cargador
-          },
-        });
-    
-        // Simulación de envío a la API
-        try {
-          console.log(userClientInfo.id_cliente)
-          const res = await createFactEnc(userClientInfo.id_cliente);
-          console.log(res);
-          if (res != null) {
-            //Cerrar la alerta de carga y mostrar el mensaje de éxito
-            Swal.fire({
-              title: "¡Éxito!",
-              text: "Encabezado de factura generado",
-              icon: "success",
-            });
-            // Resetear el formulario
-            reset();
-            saveFacturaDetails(res)
-            handleNext();
+    // Mostrar la alerta de carga
+    Swal.fire({
+      title: "Cargando...",
+      text: "Por favor espera mientras se envían los datos.",
+      icon: "info",
+      allowOutsideClick: false, // No se puede cerrar fuera de la alerta
+      didOpen: () => {
+        Swal.showLoading(); // Muestra el cargador
+      },
+    });
 
-          } else {
-            Swal.fire({
-              title: "Problema",
-              text: "Error con la creacion del encabezado de la factura",
-              icon: "error",
-            });
-          }
-        } catch (error) {
-          // Si hay un error, mostrar alerta de error
-          Swal.fire({
-            title: "Error",
-            text: `Hubo un problema al enviar los datos.${error}`,
-            icon: "error",
-          });
-        }
+    // Simulación de envío a la API
+    try {
+      console.log(userClientInfo.id_cliente);
+      const res = await createFactEnc(userClientInfo.id_cliente);
+      console.log(res);
+      if (res != null) {
+        //Cerrar la alerta de carga y mostrar el mensaje de éxito
+        Swal.fire({
+          title: "¡Éxito!",
+          text: "Encabezado de factura generado",
+          icon: "success",
+        });
+        // Resetear el formulario
+        reset();
+        saveFacturaDetails(res);
+        getHeaderFactura(res);
+        handleNext();
+      } else {
+        Swal.fire({
+          title: "Problema",
+          text: "Error con la creacion del encabezado de la factura",
+          icon: "error",
+        });
+      }
+    } catch (error) {
+      // Si hay un error, mostrar alerta de error
+      Swal.fire({
+        title: "Error",
+        text: `Hubo un problema al enviar los datos.${error}`,
+        icon: "error",
+      });
+    }
   };
 
   const handleRemove = (id) => {
@@ -412,10 +425,8 @@ const CarBuyList = () => {
           <div>
             {activeStep === CarBuyListOptions.length - 1 ? (
               <>
-                <Typography variant="h5" sx={{ mt: 2, mb: 1 }}>
-                  Paso Final se ha realizado el pago correctamente
-                </Typography>
-                <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                 <FacturaPdf factura={infoEnca} detailInfo={detailInfo} />
+                 <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
                   <Box sx={{ flex: "1 1 auto" }} />
                   <Button onClick={handleReset} color="warning">
                     Reiniciar

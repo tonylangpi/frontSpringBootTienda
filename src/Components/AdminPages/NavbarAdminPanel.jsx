@@ -57,9 +57,9 @@ function NavbarAdminPanel() {
     setAnchorElUser(null);
   };
 
-  // const redirectRoute = (route) => {
-  //   navigate(route);
-  // };
+  const redirectRoute = (route) => {
+    navigate(route);
+  };
 
   // useEffect(() => {
   //     // const loggedIn = localStorage.getItem('loged') 
@@ -168,6 +168,24 @@ function NavbarAdminPanel() {
           CONVEX-IM ADMIN
         </Typography>
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+        <Button
+            onClick={() => redirectRoute("/")}
+            sx={{ my: 2, color: 'white', display: 'block' }}
+          >
+            inicio
+          </Button>
+          <Button
+            onClick={() => redirectRoute("/inventory")}
+            sx={{ my: 2, color: 'white', display: 'block' }}
+          >
+            Inventario
+          </Button>
+          <Button
+            onClick={() => redirectRoute("/ventas")}
+            sx={{ my: 2, color: 'white', display: 'block' }}
+          >
+            Ventas
+          </Button>
         {/* {menuItems.map((item, index) => (
           <Button
             key={index}
