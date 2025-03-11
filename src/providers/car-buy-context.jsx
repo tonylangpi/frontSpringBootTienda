@@ -44,9 +44,17 @@ export function BuyProvider({ children }) {
   const getHeaderFactura = async (facturaId) => {
     try {
       const response = await getHeaderFact(facturaId);
-      const details = await gertDetailsFact(facturaId)
-      setInfoEnca(response)
-      setDetailInfo(details);
+      if(!response){
+        Swal.fire({
+          title: "Error",
+          text: `Ocurrió un error al generar la factura`,
+          icon: "error",
+        });
+        return false;
+      }else{
+        setInfoEnca(response);
+        return true;
+      }
     } catch (error) {
       Swal.fire({
         title: "Error",
@@ -55,6 +63,29 @@ export function BuyProvider({ children }) {
       });
     }
   };
+
+  const getDetailsFactura = async(factId) =>{
+    try {
+      const response = await gertDetailsFact(factId);
+      if(!response){
+        Swal.fire({
+          title: "Error",
+          text: `Ocurrió un error al generar la factura`,
+          icon: "error",
+        });
+        return false;
+      }else{
+        setDetailInfo(response);
+        return true;
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: `Ocurrió un error al guardar los detalles de la factura. ${error}`,
+        icon: "error",
+      });
+    }
+  }
 
   const addCarBuy = (card) => {
     return async () => {
@@ -114,7 +145,7 @@ export function BuyProvider({ children }) {
   return (
     <BuyContext
       value={{
-        carrito, setCarrito,addCarBuy,saveFacturaDetails,getHeaderFactura, infoEnca,detailInfo
+        carrito, setCarrito,addCarBuy,saveFacturaDetails,getHeaderFactura, infoEnca,detailInfo, getDetailsFactura
       }}
     >
       {children}

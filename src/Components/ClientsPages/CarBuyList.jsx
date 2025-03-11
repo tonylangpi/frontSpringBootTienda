@@ -47,6 +47,7 @@ const CarBuyList = () => {
     saveFacturaDetails,
     infoEnca,
     getHeaderFactura,
+    getDetailsFactura,
     detailInfo,
   } = use(BuyContext);
   const { userClientInfo } = use(ClientContext);
@@ -112,8 +113,17 @@ const CarBuyList = () => {
         // Resetear el formulario
         reset();
         saveFacturaDetails(res); //guarda en bd los detalles del carrito de compra
-        getHeaderFactura(res);
-        handleNext();
+        const enca = await getHeaderFactura(res);
+        const detail = await getDetailsFactura(res)
+        if(enca === true && detail === true){
+          handleNext()
+        }else{
+          Swal.fire({
+            title: "Problema",
+            text: "no se pudo generar la factura pdf",
+            icon: "error",
+          });
+        }
       } else {
         Swal.fire({
           title: "Problema",
@@ -160,8 +170,17 @@ const CarBuyList = () => {
         // Resetear el formulario
         reset();
         saveFacturaDetails(res);
-        getHeaderFactura(res);
-        handleNext();
+        const enca = await getHeaderFactura(res);
+        const detail = await getDetailsFactura(res)
+        if(enca === true && detail === true){
+          handleNext()
+        }else{
+          Swal.fire({
+            title: "Problema",
+            text: "no se pudo generar la factura pdf",
+            icon: "error",
+          });
+        }
       } else {
         Swal.fire({
           title: "Problema",

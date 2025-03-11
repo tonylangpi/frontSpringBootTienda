@@ -17,13 +17,13 @@ const FacturaPDF = ({ factura ,detailInfo }) => (
   <Document>
     <Page style={styles.page}>
       <View style={styles.section}>
-        <Text style={styles.header}>Factura #{factura.encabezado.id}</Text>
-        <Text>Cliente: {factura.cliente.nombre}</Text>
-        <Text>Dirección: {factura.cliente.direccion}</Text>
-        <Text>Teléfono: {factura.cliente.telefono}</Text>
-        <Text>Correo: {factura.cliente.correo}</Text>
-        <Text>NIT: {factura.cliente.nit}</Text>
-        <Text>Fecha: {factura.encabezado.fecha}</Text>
+        <Text style={styles.header}>Factura #{factura?.encabezado?.id}</Text>
+        <Text>Cliente: {factura?.cliente?.nombre}</Text>
+        <Text>Dirección: {factura?.cliente?.direccion}</Text>
+        <Text>Teléfono: {factura?.cliente?.telefono}</Text>
+        <Text>Correo: {factura?.cliente?.correo}</Text>
+        <Text>NIT: {factura?.cliente?.nit}</Text>
+        <Text>Fecha: {factura?.encabezado?.fecha}</Text>
       </View>
 
       <View style={styles.table}>
