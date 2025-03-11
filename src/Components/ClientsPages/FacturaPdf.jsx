@@ -1,4 +1,5 @@
-import React from "react";
+import React, {use} from "react";
+import { BuyContext } from "../../providers/car-buy-context";
 import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
@@ -48,11 +49,10 @@ const FacturaPDF = ({ factura ,detailInfo }) => (
   </Document>
 );
 
-const FacturaDownload = ({ factura, detailInfo }) => {
-  console.log("factura",factura);
-  console.log("detailinfo",detailInfo)
+const FacturaDownload = () => {
+   const{  infoEnca, detailInfo} =  use(BuyContext)
   return (
-    <PDFDownloadLink document={<FacturaPDF factura={factura} detailInfo={detailInfo} />} fileName="facturaCliente.pdf">
+    <PDFDownloadLink document={<FacturaPDF factura={infoEnca} detailInfo={detailInfo} />} fileName="facturaCliente.pdf">
       {({ loading }) => (loading ? "Generando PDF..." : "Descargar Factura")}
     </PDFDownloadLink>
   );

@@ -45,10 +45,10 @@ const CarBuyList = () => {
     setCarrito,
     addCarBuy,
     saveFacturaDetails,
-    infoEnca,
+    setInfoEnca,
     getHeaderFactura,
     getDetailsFactura,
-    detailInfo,
+    setDetailInfo,
   } = use(BuyContext);
   const { userClientInfo } = use(ClientContext);
 
@@ -69,6 +69,8 @@ const CarBuyList = () => {
   const handleReset = () => {
     setActiveStep(0);
     setPaymentMethod("");
+    setInfoEnca({});
+    setDetailInfo({})
   };
 
   const handlePaymentMethodChange = (event) => {
@@ -444,7 +446,7 @@ const CarBuyList = () => {
           <div>
             {activeStep === CarBuyListOptions.length - 1 ? (
               <>
-                 <FacturaPdf factura={infoEnca} detailInfo={detailInfo} />
+                 <FacturaPdf />
                  <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
                   <Box sx={{ flex: "1 1 auto" }} />
                   <Button onClick={handleReset} color="warning">
