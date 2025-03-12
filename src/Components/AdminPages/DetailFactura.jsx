@@ -1,6 +1,8 @@
 import React, { useContext } from "react";
 import { Page, Text, View, Document, StyleSheet, PDFViewer } from "@react-pdf/renderer";
 import { ClientContext } from "../../providers/context-auth";
+import { useNavigate } from "react-router-dom";
+import {Button} from '@mui/material'
 
 const styles = StyleSheet.create({
     page: { padding: 30, fontSize: 12 },
@@ -52,12 +54,38 @@ const FacturaPDF = ({ factura, detailInfo }) => (
 );
 
 const FacturaViewer = () => {
-    const { infoEnca, infoDetail } = useContext(ClientContext);
+const { infoEnca, infoDetail, user } = useContext(ClientContext);
+const navigate = useNavigate();
+
+
 
     return (
-        <PDFViewer width="100%" height="600px">
+      <div className="flex flex-col items-center justify-center space-y-4">
+        <div className="w-full max-w-4xl">
+          <PDFViewer width="100%" height="600px">
             <FacturaPDF factura={infoEnca} detailInfo={infoDetail} />
-        </PDFViewer>
+          </PDFViewer>
+        </div>
+        {
+            user?.isAdmin === "1" ? (
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => navigate("/ventas")}
+                >
+                    Regresar a historial
+                </Button>
+            ) : (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => navigate("/factsClient")}
+                > 
+                    Regresar a Historial del cliente
+                </Button>
+            )
+        }
+      </div>
     );
 };
 

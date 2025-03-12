@@ -19,54 +19,8 @@ import { BuyContext } from "../../providers/car-buy-context";
 import { ClientContext } from "../../providers/context-auth";
 import { createFactEnc } from "../../services/ventas-enc-service";
 import { Card, CardContent } from "@mui/material";
-import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from "@react-pdf/renderer";
+import { useNavigate } from "react-router-dom";
 
-const styles = StyleSheet.create({
-  page: { padding: 20, fontSize: 12 },
-  section: { marginBottom: 10 },
-  header: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
-  table: { width: "100%", borderWidth: 1, marginTop: 10 },
-  row: { flexDirection: "row", borderBottomWidth: 1, padding: 5 },
-  column: { flex: 1, textAlign: "center" },
-  total: { marginTop: 10, fontSize: 16, fontWeight: "bold" },
-  image: { width: 50, height: 50, marginRight: 5 }
-});
-
-const FacturaPDF = ({ factura ,detailInfo }) => (
-    
-  <Document>
-    <Page style={styles.page}>
-      <View style={styles.section}>
-        <Text style={styles.header}>Factura #{factura?.encabezado?.id}</Text>
-        <Text>Cliente: {factura?.cliente?.nombre}</Text>
-        <Text>Dirección: {factura?.cliente?.direccion}</Text>
-        <Text>Teléfono: {factura?.cliente?.telefono}</Text>
-        <Text>Correo: {factura?.cliente?.correo}</Text>
-        <Text>NIT: {factura?.cliente?.nit}</Text>
-        <Text>Fecha: {factura?.encabezado?.fecha}</Text>
-      </View>
-
-      <View style={styles.table}>
-        <View style={[styles.row, { fontWeight: "bold" }]}> 
-          <Text style={styles.column}>Producto</Text>
-          <Text style={styles.column}>Cantidad</Text>
-          <Text style={styles.column}>Precio</Text>
-          <Text style={styles.column}>Subtotal</Text>
-        </View>
-        {detailInfo?.detalles?.map((item, index) => (
-          <View key={index} style={styles.row}>
-            <Text style={styles.column}>{item.producto.nombre}</Text>
-            <Text style={styles.column}>{item.detalle.cantidad}</Text>
-            <Text style={styles.column}>Q{item.detalle.precio_venta}</Text>
-            <Text style={styles.column}>Q{item.detalle.cantidad * item.detalle.precio_venta}</Text>
-          </View>
-        ))}
-      </View>
-
-      <Text style={styles.total}>Total: Q{detailInfo?.total.toLocaleString()}</Text>
-    </Page>
-  </Document>
-);
 
 
 const CarBuyListOptions = [
@@ -77,7 +31,7 @@ const CarBuyListOptions = [
 ];
 
 const CarBuyList = () => {
-  //const navigate = useNavigate();
+  const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("");
   const {
@@ -96,8 +50,7 @@ const CarBuyList = () => {
     setInfoEnca,
     getHeaderFactura,
     getDetailsFactura,
-    setDetailInfo,
-    infoEnca, detailInfo
+    setDetailInfo
   } = use(BuyContext);
   const { userClientInfo } = use(ClientContext);
 
@@ -495,16 +448,14 @@ const CarBuyList = () => {
           <div>
             {activeStep === CarBuyListOptions.length - 1 ? (
               <>
-                <PDFDownloadLink
-                  document={
-                    <FacturaPDF factura={infoEnca} detailInfo={detailInfo} />
-                  }
-                  fileName="facturaCliente.pdf"
-                >
-                  {({ loading }) =>
-                    loading ? "Generando PDF..." : "Descargar Factura"
-                  }
-                </PDFDownloadLink>
+                 <h3>Visita tu historial de compras para descargar la factura</h3>
+                 <Button
+                              variant="contained"
+                              color="primary"
+                              onClick={() => navigate("/factsClient")}
+                            >
+                              Ver Historial
+                            </Button>
                 <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
                   <Box sx={{ flex: "1 1 auto" }} />
                   <Button onClick={handleReset} color="warning">

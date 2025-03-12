@@ -20,6 +20,7 @@ import Swal from "sweetalert2";
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutSharpIcon from '@mui/icons-material/LogoutSharp';
 import {ClientContext} from "../../providers/context-auth"
+import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 
 function NavbarClient() {
 
@@ -40,14 +41,7 @@ function NavbarClient() {
       sessionStorage.setItem("carrito", JSON.stringify(carrito))
     }, [userClientInfo, carrito]);
     
-  const handleClick = () => {
-    navigate("/login");
-  };
 
-
-  const handleClickCliente = () => {
-    navigate("/loginClient");
-  };
 
   const handleLogout = () => {
     sessionStorage.removeItem("client");
@@ -57,13 +51,11 @@ function NavbarClient() {
     navigate("/Home");
   }
 
-  const handleClickTienda = () => {
-    navigate("/Home");
+  const handleNavigate = (path) => {
+    navigate(path);
   };
 
-  const handleClickBuyCar = () => {
-    navigate("/buyCar");
-    };
+
 
 return (
     <AppBar position="static" sx={{ backgroundColor: "#00bcd4" }}>
@@ -107,13 +99,18 @@ return (
                 </Typography>
                 <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}></Box>
                 <Box sx={{ flexGrow: 0 }}>
-                    <Tooltip onClick={() => handleClickTienda()} title="Tienda">
+                    <Tooltip onClick={() => handleNavigate("/Home")} title="Tienda">
                         <IconButton sx={{ p: 3 }}>
                             <StorefrontIcon sx={{ fontSize: 30 }} />
                         </IconButton>
                     </Tooltip>
+                    <Tooltip onClick={() => handleNavigate("/factsClient")} title="Historial de compras">
+                        <IconButton sx={{ p: 3 }}>
+                            <ManageSearchIcon sx={{ fontSize: 30 }} />
+                        </IconButton>
+                    </Tooltip>
                     <Tooltip title="Carrito de Compras">
-                        <IconButton onClick={() => handleClickBuyCar()} sx={{ p: 3 }}>
+                        <IconButton onClick={() => handleNavigate("/buyCar")} sx={{ p: 3 }}>
                             <ShoppingCartIcon sx={{ fontSize: 30 }} />
                             {carrito.length > 0 && (
                                 <Box
@@ -138,7 +135,7 @@ return (
                         </IconButton>
                     </Tooltip>
                     <Tooltip title="Iniciar Sesión como Admin">
-                        <IconButton onClick={() => handleClick()} sx={{ p: 3 }}>
+                        <IconButton onClick={() => handleNavigate("/login")} sx={{ p: 3 }}>
                             <AdminPanelSettingsIcon sx={{ fontSize: 30 }} />
                         </IconButton>
                     </Tooltip>
@@ -150,7 +147,7 @@ return (
                         </Tooltip>
                     ) : (
                         <Tooltip title="Iniciar Sesión como Cliente">
-                            <IconButton onClick={() => handleClickCliente()} sx={{ p: 3 }}>
+                            <IconButton onClick={() => handleNavigate("/loginClient")} sx={{ p: 3 }}>
                                 <LoginIcon sx={{ fontSize: 30 }} />
                             </IconButton>
                         </Tooltip>

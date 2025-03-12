@@ -12,6 +12,7 @@ import LoginClient from './Components/ClientsPages/LoginPageClient.jsx'
 import RegisterClient from './Components/ClientsPages/RegisterClient.jsx'
 import VentasPanel from './Components/AdminPages/VentasPanel.jsx'
 import DetailFactura from './Components/AdminPages/DetailFactura.jsx'
+import FactsByClient from './Components/ClientsPages/FactsByClient.jsx'
 import './App.css'
 import {
   Routes,
@@ -55,6 +56,8 @@ function App() {
             <Route path="/detailProd/:id" element={<DetailProduct />} />
             <Route path="/buyCar" element={<CarBuyList />} />
             <Route path="/RegisterClient" element={<RegisterClient />} />
+            <Route path="/factsClient" element={<FactsByClient />} />
+            <Route path='/detailFact' element={<DetailFactura />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
